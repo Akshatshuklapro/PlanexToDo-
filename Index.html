@@ -1,0 +1,5223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Advanced Task Manager</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Roboto (default) + Share Tech Mono (hacker theme) -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================
+           GLOBAL STYLES & VARIABLES
+           ========================================== */
+
+        :root {
+            /* Light Theme Colors */
+            --primary-color: #1976D2;
+            --primary-dark: #1565C0;
+            --primary-light: #42A5F5;
+            --accent-color: #FF6B6B;
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --danger-color: #F44336;
+            
+            /* Background Colors */
+            --bg-primary: #F5F5F5;
+            --bg-secondary: #FFFFFF;
+            --bg-tertiary: #FAFAFA;
+            
+            /* Text Colors */
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-disabled: #BDBDBD;
+            --text-white: #FFFFFF;
+            
+            /* Border & Shadow */
+            --border-color: #E0E0E0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+            --shadow-fab: 0 6px 12px rgba(25, 118, 210, 0.4);
+            
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-full: 50%;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.4s ease;
+            
+            /* Sidebar */
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 0;
+            
+            /* Typography */
+            --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        /* ==========================================
+           THEME VARIATIONS — Premium Redesigns
+           ========================================== */
+
+        /* ── MIDNIGHT PRO (Dark) ──────────────────
+           Deep charcoal surfaces, electric indigo
+           accents, crisp white hierarchy           */
+        body.theme-dark {
+            --primary-color:  #7C6AF7;
+            --primary-dark:   #5B4DE0;
+            --primary-light:  #A594FA;
+            --accent-color:   #F06292;
+            --success-color:  #66BB6A;
+            --warning-color:  #FFA726;
+            --danger-color:   #EF5350;
+
+            --bg-primary:   #0D0D0D;
+            --bg-secondary: #181818;
+            --bg-tertiary:  #242424;
+
+            --text-primary:   #F0F0F0;
+            --text-secondary: #9E9E9E;
+            --text-disabled:  #4A4A4A;
+            --text-white:     #FFFFFF;
+
+            --border-color: #2E2E2E;
+            --shadow-sm:  0 2px 8px  rgba(0,0,0,0.5);
+            --shadow-md:  0 4px 16px rgba(0,0,0,0.6);
+            --shadow-lg:  0 8px 32px rgba(0,0,0,0.7);
+            --shadow-fab: 0 6px 18px rgba(124,106,247,0.45);
+        }
+
+        /* ── HACKER (Cyberpunk) ───────────────────
+           True terminal black, phosphor green on
+           dark panels, scanline aesthetic          */
+        body.theme-cyberpunk {
+            --primary-color:  #00FF41;
+            --primary-dark:   #00CC33;
+            --primary-light:  #39FF6A;
+            --accent-color:   #00FFFF;
+            --success-color:  #00FF41;
+            --warning-color:  #FFD600;
+            --danger-color:   #FF1744;
+
+            --bg-primary:   #000000;
+            --bg-secondary: #0A0F0A;
+            --bg-tertiary:  #0D1A0D;
+
+            --text-primary:   #00FF41;
+            --text-secondary: #00CC33;
+            --text-disabled:  #1A4D1A;
+            --text-white:     #00FF41;
+
+            --border-color: #00FF4133;
+            --shadow-sm:  0 0 6px  rgba(0,255,65,0.2);
+            --shadow-md:  0 0 14px rgba(0,255,65,0.3);
+            --shadow-lg:  0 0 28px rgba(0,255,65,0.35);
+            --shadow-fab: 0 0 20px rgba(0,255,65,0.55);
+        }
+
+        /* Hacker scanline overlay on bg */
+        body.theme-cyberpunk .app-container::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,255,65,0.015) 2px,
+                rgba(0,255,65,0.015) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Glowing text for hacker mode */
+        body.theme-cyberpunk .logo h1,
+        body.theme-cyberpunk .page-title {
+            text-shadow: 0 0 10px rgba(0,255,65,0.7), 0 0 20px rgba(0,255,65,0.4);
+        }
+
+        body.theme-cyberpunk .task-item {
+            border-left-color: #00FF4133;
+        }
+
+        body.theme-cyberpunk .task-item:hover {
+            box-shadow: 0 0 12px rgba(0,255,65,0.25), 0 0 2px rgba(0,255,65,0.4);
+            border-left-color: #00FF41;
+        }
+
+        body.theme-cyberpunk .nav-item.active {
+            background: rgba(0,255,65,0.12);
+            color: #00FF41;
+            box-shadow: 0 0 12px rgba(0,255,65,0.3);
+        }
+
+        body.theme-cyberpunk .fab {
+            box-shadow: 0 0 20px rgba(0,255,65,0.6), 0 0 40px rgba(0,255,65,0.3);
+        }
+
+        /* ── GOLDEN HOUR (Sunset) ─────────────────
+           Warm amber + deep mahogany bg, rich gold
+           accents — premium editorial feel         */
+        body.theme-sunset {
+            --primary-color:  #E8A020;
+            --primary-dark:   #C4820A;
+            --primary-light:  #F5C04A;
+            --accent-color:   #E05C2A;
+            --success-color:  #5DAB52;
+            --warning-color:  #F0A000;
+            --danger-color:   #C0392B;
+
+            --bg-primary:   #1C1007;
+            --bg-secondary: #271808;
+            --bg-tertiary:  #32200A;
+
+            --text-primary:   #F5DEB3;
+            --text-secondary: #C4A47C;
+            --text-disabled:  #6B4E2A;
+            --text-white:     #FFF8EE;
+
+            --border-color: #5A3A1A;
+            --shadow-sm:  0 2px 8px  rgba(0,0,0,0.4);
+            --shadow-md:  0 4px 16px rgba(0,0,0,0.5);
+            --shadow-lg:  0 8px 32px rgba(0,0,0,0.6);
+            --shadow-fab: 0 6px 18px rgba(232,160,32,0.5);
+        }
+
+        body.theme-sunset .logo i,
+        body.theme-sunset .form-label i {
+            color: #E8A020;
+        }
+
+        body.theme-sunset .task-item:hover {
+            border-left-color: #E8A020;
+            box-shadow: 0 4px 16px rgba(232,160,32,0.2);
+        }
+
+        body.theme-sunset .date-time-display {
+            background: linear-gradient(135deg, #C4820A, #E8A020);
+        }
+
+        /* ── DEEP ABYSS (Ocean) ───────────────────
+           Bioluminescent deep-sea — near-black navy
+           with electric teal glows                 */
+        body.theme-ocean {
+            --primary-color:  #00B4D8;
+            --primary-dark:   #0077A8;
+            --primary-light:  #48CAE4;
+            --accent-color:   #00F5D4;
+            --success-color:  #06D6A0;
+            --warning-color:  #F4A261;
+            --danger-color:   #E63946;
+
+            --bg-primary:   #020D18;
+            --bg-secondary: #051826;
+            --bg-tertiary:  #0A2540;
+
+            --text-primary:   #CAF0F8;
+            --text-secondary: #6EAFC5;
+            --text-disabled:  #1E4D6B;
+            --text-white:     #E0F7FA;
+
+            --border-color: #0D3B5E;
+            --shadow-sm:  0 2px 8px  rgba(0,180,216,0.1);
+            --shadow-md:  0 4px 16px rgba(0,180,216,0.15);
+            --shadow-lg:  0 8px 32px rgba(0,180,216,0.2);
+            --shadow-fab: 0 6px 18px rgba(0,180,216,0.5);
+        }
+
+        body.theme-ocean .task-item:hover {
+            border-left-color: #00B4D8;
+            box-shadow: 0 4px 16px rgba(0,180,216,0.2);
+        }
+
+        body.theme-ocean .logo i {
+            color: #00B4D8;
+            filter: drop-shadow(0 0 6px rgba(0,180,216,0.6));
+        }
+
+        body.theme-ocean .date-time-display {
+            background: linear-gradient(135deg, #0077A8, #00B4D8);
+        }
+
+        body.theme-ocean .nav-item.active {
+            background: rgba(0,180,216,0.15);
+            color: #00B4D8;
+            box-shadow: 0 0 12px rgba(0,180,216,0.25);
+        }
+
+        /* Hacker theme — apply monospace font everywhere */
+        body.theme-cyberpunk,
+        body.theme-cyberpunk input,
+        body.theme-cyberpunk select,
+        body.theme-cyberpunk button,
+        body.theme-cyberpunk .task-title,
+        body.theme-cyberpunk .page-title,
+        body.theme-cyberpunk .logo h1,
+        body.theme-cyberpunk .nav-item span,
+        body.theme-cyberpunk .modal-header h3 {
+            font-family: 'Share Tech Mono', 'Courier New', monospace !important;
+            letter-spacing: 0.5px;
+        }
+
+        /* Cyberpunk blinking cursor on page title */
+        body.theme-cyberpunk .page-title::after {
+            content: '_';
+            animation: blink 1s step-end infinite;
+            color: #00FF41;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
+        }
+
+        /* Hacker mode — green border on inputs/selects */
+        body.theme-cyberpunk .task-title-input,
+        body.theme-cyberpunk .date-input,
+        body.theme-cyberpunk .time-input,
+        body.theme-cyberpunk .select-wrapper select {
+            color: #00FF41;
+            caret-color: #00FF41;
+        }
+
+        /* Neon checkboxes in hacker mode */
+        body.theme-cyberpunk .task-checkbox input:checked ~ .checkbox-circle {
+            background: #00FF41;
+            border-color: #00FF41;
+            box-shadow: 0 0 8px rgba(0,255,65,0.6);
+        }
+
+        body.theme-cyberpunk .checkbox-container input:checked ~ .checkmark {
+            background: #00FF41;
+            border-color: #00FF41;
+            box-shadow: 0 0 6px rgba(0,255,65,0.5);
+        }
+
+        /* Sunset warm glow on task cards */
+        body.theme-sunset .task-item {
+            border-left: 4px solid transparent;
+        }
+
+        body.theme-sunset .sidebar {
+            background: linear-gradient(180deg, #271808 0%, #1C1007 100%);
+        }
+
+        body.theme-sunset .top-bar {
+            background: linear-gradient(90deg, #271808 0%, #32200A 100%);
+        }
+
+        /* Ocean bioluminescent sidebar */
+        body.theme-ocean .sidebar {
+            background: linear-gradient(180deg, #051826 0%, #020D18 100%);
+        }
+
+        body.theme-ocean .top-bar {
+            background: linear-gradient(90deg, #051826 0%, #0A2540 100%);
+        }
+
+        /* ==========================================
+           RESET & BASE STYLES
+           ========================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color var(--transition-normal), color var(--transition-normal);
+        }
+
+        /* ==========================================
+           APP CONTAINER & LAYOUT
+           ========================================== */
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* ==========================================
+           SIDEBAR NAVIGATION
+           ========================================== */
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            transition: transform var(--transition-normal);
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-lg) var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            transition: background-color var(--transition-fast);
+        }
+
+        .sidebar-toggle:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        /* Date and Time Display */
+        .date-time-display {
+            padding: var(--spacing-md);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            margin: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            color: var(--text-white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .current-date {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+            opacity: 0.95;
+        }
+
+        .current-time {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Theme Toggle (Old - kept for backwards compatibility) */
+        .theme-toggle-container {
+            padding: 0 var(--spacing-md) var(--spacing-md);
+        }
+
+        .theme-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            background-color: var(--bg-tertiary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--border-color);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle i {
+            font-size: 1.125rem;
+            color: var(--primary-color);
+        }
+
+        /* Navigation Lists */
+        .nav-lists {
+            flex: 1;
+            padding: var(--spacing-md) 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            padding: var(--spacing-sm) var(--spacing-md);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-md);
+            margin: var(--spacing-xs) var(--spacing-md);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--text-white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-item.active .task-count {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: var(--text-white);
+        }
+
+        .nav-item i {
+            font-size: 1.125rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-item span:first-of-type {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .task-count {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            background-color: var(--bg-secondary);
+        }
+
+        /* ==========================================
+           MAIN CONTENT AREA
+           ========================================== */
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: margin-left var(--transition-normal);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--bg-secondary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+        }
+
+        .page-title {
+            flex: 1;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            transition: background-color var(--transition-fast);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        /* ==========================================
+           THREE-DOT MENU & THEME SWITCHER
+           ========================================== */
+
+        /* Three-dot menu button */
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .menu-btn:hover {
+            background-color: var(--bg-tertiary);
+            transform: rotate(90deg);
+        }
+
+        .menu-btn.active {
+            background-color: var(--primary-light);
+            color: var(--text-white);
+        }
+
+        /* Dropdown menu container */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transition: all var(--transition-normal);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Menu section */
+        .menu-section {
+            padding: var(--spacing-sm) 0;
+        }
+
+        .menu-section:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-section-title {
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Theme option item */
+        .theme-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md) var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            position: relative;
+        }
+
+        .theme-option:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .theme-option.active {
+            background-color: var(--primary-light);
+            color: var(--text-white);
+        }
+
+        .theme-option.active::before {
+            opacity: 1;
+        }
+
+        /* Theme name with icon */
+        .theme-name {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-weight: 500;
+        }
+
+        .theme-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        /* Theme-specific icons/colors — updated for new identities */
+        .theme-icon.default {
+            background: linear-gradient(135deg, #1976D2, #42A5F5);
+        }
+
+        /* Midnight Pro — indigo/purple */
+        .theme-icon.dark {
+            background: linear-gradient(135deg, #0D0D0D 50%, #7C6AF7);
+            border: 1px solid #7C6AF7;
+        }
+
+        /* Hacker — pure matrix green on black */
+        .theme-icon.cyberpunk {
+            background: #000000;
+            border: 1px solid #00FF41;
+            box-shadow: 0 0 6px rgba(0,255,65,0.5);
+        }
+
+        /* Golden Hour — amber on dark mahogany */
+        .theme-icon.sunset {
+            background: linear-gradient(135deg, #1C1007, #E8A020);
+        }
+
+        /* Deep Abyss — near-black navy to electric teal */
+        .theme-icon.ocean {
+            background: linear-gradient(135deg, #020D18, #00B4D8);
+        }
+
+        /* Checkmark indicator */
+        .theme-check {
+            color: var(--text-white);
+            font-size: 1rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .theme-option.active .theme-check {
+            opacity: 1;
+        }
+
+        /* Search Container */
+        .search-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-normal);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-container.active {
+            max-height: 100px;
+        }
+
+        .search-bar {
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background-color: var(--bg-tertiary);
+            margin: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+        }
+
+        .search-bar i {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-clear {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: var(--spacing-xs);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .search-bar input:not(:placeholder-shown) ~ .search-clear {
+            opacity: 1;
+        }
+
+        /* Tasks Container */
+        .tasks-container {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+        }
+
+        .tasks-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Task Item */
+        .task-item {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border-left: 4px solid transparent;
+        }
+
+        .task-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+
+        .task-item.overdue {
+            border-left-color: var(--danger-color);
+        }
+
+        /* Task Checkbox */
+        .task-checkbox {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .task-checkbox .checkbox-circle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-secondary);
+            border-radius: var(--radius-full);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .task-checkbox input:checked ~ .checkbox-circle {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .task-checkbox .checkbox-circle i {
+            color: var(--text-white);
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .task-checkbox input:checked ~ .checkbox-circle i {
+            opacity: 1;
+        }
+
+        /* Task Content */
+        .task-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+            word-wrap: break-word;
+        }
+
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .task-meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .task-meta-item i {
+            font-size: 0.875rem;
+        }
+
+        .task-meta-item.due-today {
+            color: var(--primary-color);
+        }
+
+        .task-meta-item.overdue {
+            color: var(--danger-color);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-xl);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state.visible {
+            display: flex;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            font-size: 0.875rem;
+        }
+
+        /* ==========================================
+           FLOATING ACTION BUTTON (FAB)
+           ========================================== */
+
+        .fab {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: var(--radius-full);
+            color: var(--text-white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-fab);
+            transition: all var(--transition-fast);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 16px rgba(25, 118, 210, 0.6);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* ==========================================
+           MODAL
+           ========================================== */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+            padding: var(--spacing-md);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform var(--transition-normal);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-secondary);
+            z-index: 10;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            transition: background-color var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: flex-end;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--bg-secondary);
+        }
+
+        /* ==========================================
+           FORM ELEMENTS
+           ========================================== */
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-label i {
+            color: var(--primary-color);
+        }
+
+        .input-with-icon {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+        }
+
+        .input-with-icon i {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+        }
+
+        .task-title-input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .task-title-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Checkbox Container */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            cursor: pointer;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            transition: background-color var(--transition-fast);
+        }
+
+        .checkbox-container:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .checkmark {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-secondary);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .checkmark::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text-white);
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .checkbox-container input:checked ~ .checkmark::after {
+            opacity: 1;
+        }
+
+        .checkbox-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Select Wrapper */
+        .select-wrapper {
+            position: relative;
+            background-color: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+        }
+
+        .select-wrapper select {
+            width: 100%;
+            padding: var(--spacing-md);
+            padding-right: var(--spacing-xl);
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .select-wrapper i {
+            position: absolute;
+            right: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+            font-size: 0.875rem;
+        }
+
+        /* Date Quick Options */
+        .date-quick-options {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .quick-date-btn {
+            flex: 1;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background-color: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .quick-date-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        .quick-date-btn.active {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+            color: var(--text-white);
+        }
+
+        /* Date and Time Inputs */
+        .date-input,
+        .time-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            background-color: var(--bg-tertiary);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .date-input:focus,
+        .time-input:focus {
+            background-color: var(--border-color);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: var(--text-white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--danger-color);
+            color: var(--text-white);
+            border-color: var(--danger-color);
+        }
+
+        /* ==========================================
+           SIDEBAR OVERLAY (Mobile)
+           ========================================== */
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ==========================================
+           SCROLLBAR STYLING
+           ========================================== */
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-disabled);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* ==========================================
+           RESPONSIVE DESIGN
+           ========================================== */
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .page-title {
+                font-size: 1.25rem;
+            }
+            
+            .fab {
+                bottom: var(--spacing-md);
+                right: var(--spacing-md);
+            }
+            
+            .tasks-container {
+                padding: var(--spacing-md);
+            }
+            
+            .top-bar {
+                padding: var(--spacing-md);
+            }
+            
+            .modal-content {
+                max-width: 100%;
+                margin: 0;
+                border-radius: var(--radius-lg);
+            }
+
+            /* Adjust dropdown position on mobile */
+            .dropdown-menu {
+                right: var(--spacing-sm);
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .date-quick-options {
+                flex-direction: column;
+            }
+            
+            .quick-date-btn {
+                width: 100%;
+            }
+            
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ==========================================
+           ANIMATIONS
+           ========================================== */
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item {
+            animation: fadeIn var(--transition-normal);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .sidebar.active {
+            animation: slideIn var(--transition-normal);
+        }
+
+        /* Dropdown animation */
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .dropdown-menu.active {
+            animation: dropdownSlide var(--transition-normal);
+        }
+
+        /* ==========================================
+           ACCESSIBILITY
+           ========================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus Styles */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* ==========================================
+           UTILITY CLASSES
+           ========================================== */
+
+        .hidden {
+            display: none !important;
+        }
+
+        .visible {
+            display: block !important;
+        }
+
+        /* Nuclear guard: completed tasks should NEVER appear outside Finished view.
+           The JS filter handles this, but CSS is a second safety net. */
+        #tasksList .task-item.completed {
+            display: none !important;
+        }
+
+        /* Exception: inside finished view, we DO want to show them */
+        body[data-view="finished"] #tasksList .task-item.completed {
+            display: flex !important;
+        }
+
+        /* ── Reset data banner ── */
+        .reset-banner {
+            background: #FFF3CD;
+            border: 1px solid #FFECB5;
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            margin: 12px 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: #856404;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .reset-banner button {
+            background: #856404;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .reset-banner button:hover { background: #5a4402; }
+
+        #resetBanner { display: none; }
+
+        /* ==========================================
+           TOOL MODAL (Pomodoro + Stopwatch)
+           ========================================== */
+
+        /* Full-screen modal overlay for tools */
+        .tool-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+            padding: var(--spacing-md);
+        }
+
+        .tool-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tool modal card */
+        .tool-modal {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-color);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+            transform: translateY(24px) scale(0.97);
+            transition: transform var(--transition-normal);
+        }
+
+        .tool-modal-overlay.active .tool-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Tab header bar */
+        .tool-tabs {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .tool-tab-btn {
+            flex: 1;
+            padding: 14px var(--spacing-md);
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+            position: relative;
+        }
+
+        .tool-tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 2px 2px 0 0;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .tool-tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tool-tab-btn.active::after {
+            opacity: 1;
+        }
+
+        .tool-tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: var(--border-color);
+        }
+
+        /* Close button in modal header */
+        .tool-modal-close {
+            position: absolute;
+            right: var(--spacing-sm);
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+            z-index: 2;
+        }
+
+        .tool-modal-close:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        /* Tab panels */
+        .tool-panel {
+            display: none;
+            padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-xl);
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .tool-panel.active {
+            display: flex;
+        }
+
+        /* ==========================================
+           CIRCULAR TIMER RING
+           ========================================== */
+
+        .timer-ring-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-ring-svg {
+            position: absolute;
+            inset: 0;
+            transform: rotate(-90deg);
+        }
+
+        .timer-ring-bg {
+            fill: none;
+            stroke: var(--border-color);
+            stroke-width: 8;
+        }
+
+        .timer-ring-progress {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s;
+        }
+
+        /* Pulsing center */
+        .timer-center {
+            position: relative;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Stopwatch ms */
+        .timer-ms {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* ==========================================
+           POMODORO MODE PILLS
+           ========================================== */
+
+        .pomo-modes {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-radius: 50px;
+            padding: 4px;
+            gap: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pomo-mode-btn {
+            padding: 6px 14px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .pomo-mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Pomodoro status dots */
+        .pomo-sessions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .session-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: background var(--transition-fast);
+        }
+
+        .session-dot.done {
+            background: var(--primary-color);
+        }
+
+        .session-dot.current {
+            background: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(66,165,245,0.25);
+        }
+
+        /* ==========================================
+           TIMER / STOPWATCH CONTROLS
+           ========================================== */
+
+        .timer-controls {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        /* Primary big action button */
+        .ctrl-btn-primary {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(25,118,210,0.4);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ctrl-btn-primary:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(25,118,210,0.5);
+        }
+
+        .ctrl-btn-primary:active { transform: scale(0.95); }
+
+        /* Secondary smaller button */
+        .ctrl-btn-secondary {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ctrl-btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--bg-tertiary);
+        }
+
+        .ctrl-btn-secondary:active { transform: scale(0.94); }
+
+        /* ==========================================
+           STOPWATCH LAP TABLE
+           ========================================== */
+
+        .lap-container {
+            width: 100%;
+            max-height: 160px;
+            overflow-y: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .lap-header {
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr;
+            padding: 6px var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+
+        .lap-row {
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr;
+            padding: 8px var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            transition: background var(--transition-fast);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .lap-row:last-child { border-bottom: none; }
+        .lap-row:hover { background: var(--bg-tertiary); }
+
+        /* Highlight best/worst lap */
+        .lap-row.lap-best { color: var(--success-color); font-weight: 600; }
+        .lap-row.lap-worst { color: var(--danger-color); font-weight: 600; }
+
+        /* Empty lap msg */
+        .lap-empty {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            padding: var(--spacing-md);
+        }
+
+        /* ==========================================
+           CUSTOM POMODORO INPUT
+           ========================================== */
+
+        .pomo-custom-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .pomo-custom-row input {
+            width: 52px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-align: center;
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+
+        .pomo-custom-row input:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* ==========================================
+           DROPDOWN TOOL MENU ITEMS
+           ========================================== */
+
+        /* Clickable menu items inside dropdown (non-theme) */
+        .menu-action-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .menu-action-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .menu-action-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* Pulsing red dot when timer is running */
+        .running-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            margin-left: auto;
+            animation: dotPulse 1.2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* ==========================================
+           RING COLOR STATES
+           ========================================== */
+
+        /* Pomodoro work = red-ish primary */
+        .tool-panel[data-pomo-state="work"] .timer-ring-progress {
+            stroke: #E53935;
+        }
+
+        /* Short break = green */
+        .tool-panel[data-pomo-state="short"] .timer-ring-progress {
+            stroke: var(--success-color);
+        }
+
+        /* Long break = ocean blue */
+        .tool-panel[data-pomo-state="long"] .timer-ring-progress {
+            stroke: #0077BE;
+        }
+
+        /* Stopwatch running = primary */
+        .timer-ring-progress.sw-running {
+            stroke: var(--primary-color);
+        }
+
+        /* ==========================================
+           RESPONSIVE TOOL MODAL
+           ========================================== */
+
+        @media (max-width: 480px) {
+            .tool-modal { border-radius: 16px; }
+            .timer-ring-wrapper { width: 180px; height: 180px; }
+            .timer-display { font-size: 2.4rem; }
+        }
+
+        /* ==========================================
+           EXAM COUNTDOWN PANEL
+           ========================================== */
+
+        .exam-list {
+            width: 100%;
+            max-height: 340px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .exam-card {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            border-left: 4px solid var(--primary-color);
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .exam-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .exam-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .exam-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .exam-delete {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+            font-size: 0.9rem;
+        }
+
+        .exam-delete:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .exam-date-display {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .exam-countdown {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .countdown-unit {
+            text-align: center;
+            flex: 1;
+        }
+
+        .countdown-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .exam-notification-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-sm);
+        }
+
+        .exam-notification-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .exam-add-form {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .exam-add-form input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .exam-add-form input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .exam-add-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .exam-add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .exam-empty {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* ==========================================
+           STUDY ANALYTICS PANEL
+           ========================================== */
+
+        .analytics-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .analytics-tab-btn {
+            flex: 1;
+            padding: var(--spacing-sm);
+            border: 2px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .analytics-tab-btn.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .analytics-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            color: white;
+            text-align: center;
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .analytics-big-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .analytics-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .analytics-breakdown {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .analytics-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .analytics-row:last-child {
+            border-bottom: none;
+        }
+
+        .analytics-row-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .analytics-row-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .analytics-empty {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+
+        .analytics-empty i {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.3;
+        }
+
+        /* ==========================================
+           FULL-SCREEN CALENDAR
+           ========================================== */
+
+        .calendar-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 5000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+            overflow-y: auto;
+        }
+
+        .calendar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .calendar-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+            min-height: 100vh;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .calendar-month-year {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .calendar-nav-btn {
+            background: var(--bg-tertiary);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .calendar-nav-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .calendar-streak {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-lg);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-streak i {
+            font-size: 1.2rem;
+        }
+
+        .calendar-close {
+            background: var(--danger-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .calendar-close:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .calendar-grid-wrapper {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            padding: var(--spacing-sm);
+        }
+
+        .calendar-dates {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .calendar-date {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .calendar-date:hover {
+            background: var(--bg-tertiary);
+            transform: scale(1.05);
+        }
+
+        .calendar-date.other-month {
+            color: var(--text-disabled);
+            opacity: 0.4;
+        }
+
+        .calendar-date.today {
+            border-color: var(--primary-color);
+            background: rgba(25, 118, 210, 0.1);
+            font-weight: 700;
+        }
+
+        .calendar-date.selected {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .calendar-date.has-goal-complete {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(76, 175, 80, 0.15));
+            border-color: var(--success-color);
+        }
+
+        .calendar-date.has-goal-incomplete {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.3), rgba(255, 152, 0, 0.15));
+            border-color: var(--warning-color);
+        }
+
+        .calendar-date-dot {
+            position: absolute;
+            bottom: 4px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .calendar-goals-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .calendar-goals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .calendar-goals-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .calendar-selected-date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .calendar-goal-input-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .calendar-goal-input {
+            flex: 1;
+            padding: var(--spacing-md);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color var(--transition-fast);
+        }
+
+        .calendar-goal-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .calendar-goal-add-btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .calendar-goal-add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .calendar-goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .calendar-goal-item {
+            background: var(--bg-tertiary);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            transition: all var(--transition-fast);
+        }
+
+        .calendar-goal-item:hover {
+            background: var(--border-color);
+        }
+
+        .calendar-goal-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--success-color);
+        }
+
+        .calendar-goal-text {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .calendar-goal-text.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: var(--text-secondary);
+        }
+
+        .calendar-goal-delete {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .calendar-goal-delete:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .calendar-no-goals {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-container {
+                padding: var(--spacing-md);
+            }
+
+            .calendar-header {
+                flex-wrap: wrap;
+                gap: var(--spacing-md);
+            }
+
+            .calendar-month-year {
+                font-size: 1.2rem;
+            }
+
+            .calendar-date {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <!-- CRITICAL: Fix old localStorage data BEFORE app loads -->
+    <!-- This script runs instantly and ensures completed tasks never show in All Tasks -->
+    <script>
+        (function fixOldLocalStorage() {
+            try {
+                var raw = localStorage.getItem('tasks');
+                if (!raw) return;
+                var tasks = JSON.parse(raw);
+                if (!Array.isArray(tasks)) { localStorage.removeItem('tasks'); return; }
+                // Normalize: make sure completed field is strictly boolean
+                // This fixes any old data where completed might be truthy non-boolean
+                var fixed = tasks.map(function(t) {
+                    return {
+                        id:           t.id || (Date.now() + Math.random().toString(36).substr(2,9)),
+                        title:        t.title || '',
+                        completed:    t.completed === true || t.completed === 'true' || t.completed === 1,
+                        list:         t.list || 'Default',
+                        dueDate:      t.dueDate || null,
+                        time:         t.time || null,
+                        repeat:       t.repeat || 'none',
+                        notification: !!t.notification
+                    };
+                });
+                localStorage.setItem('tasks', JSON.stringify(fixed));
+            } catch(e) {
+                localStorage.removeItem('tasks');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-check-circle"></i>
+                    <h1>TaskFlow</h1>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Date and Time Display -->
+            <div class="date-time-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+
+            <!-- Theme Toggle (Old - Hidden but kept for compatibility) -->
+            <div class="theme-toggle-container" style="display: none;">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+
+            <!-- Navigation Lists -->
+            <nav class="nav-lists">
+                <div class="nav-section">
+                    <h3 class="nav-section-title">SMART LISTS</h3>
+                    <ul class="nav-items">
+                        <li class="nav-item active" data-filter="all">
+                            <i class="fas fa-inbox"></i>
+                            <span>All Tasks</span>
+                            <span class="task-count" id="countAll">0</span>
+                        </li>
+                        <li class="nav-item" data-filter="today">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Today</span>
+                            <span class="task-count" id="countToday">0</span>
+                        </li>
+                        <li class="nav-item" data-filter="overdue">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Overdue</span>
+                            <span class="task-count" id="countOverdue">0</span>
+                        </li>
+                        <li class="nav-item" data-filter="finished">
+                            <i class="fas fa-check-double"></i>
+                            <span>Finished</span>
+                            <span class="task-count" id="countFinished">0</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-title">MY LISTS</h3>
+                    <ul class="nav-items">
+                        <li class="nav-item" data-list="Default">
+                            <i class="fas fa-list"></i>
+                            <span>Default</span>
+                            <span class="task-count" id="countDefault">0</span>
+                        </li>
+                        <li class="nav-item" data-list="Personal">
+                            <i class="fas fa-user"></i>
+                            <span>Personal</span>
+                            <span class="task-count" id="countPersonal">0</span>
+                        </li>
+                        <li class="nav-item" data-list="Work">
+                            <i class="fas fa-briefcase"></i>
+                            <span>Work</span>
+                            <span class="task-count" id="countWork">0</span>
+                        </li>
+                        <li class="nav-item" data-list="Shopping">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Shopping</span>
+                            <span class="task-count" id="countShopping">0</span>
+                        </li>
+                        <li class="nav-item" data-list="Wishlist">
+                            <i class="fas fa-star"></i>
+                            <span>Wishlist</span>
+                            <span class="task-count" id="countWishlist">0</span>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <p>&copy; 2024 TaskFlow</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2 class="page-title" id="pageTitle">All Tasks</h2>
+                <div class="top-bar-actions">
+                    <button class="icon-btn" id="searchBtn" aria-label="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
+
+                    <!-- Three-dot Menu Button with Dropdown -->
+                    <div style="position: relative;">
+                        <button class="menu-btn" id="menuBtn" aria-label="Menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <!-- Themes Section -->
+                            <div class="menu-section">
+                                <div class="menu-section-title">Themes</div>
+                                
+                                <!-- Default Theme -->
+                                <div class="theme-option active" data-theme="default">
+                                    <div class="theme-name">
+                                        <div class="theme-icon default">
+                                            <i class="fas fa-sun" style="color:white;font-size:0.7rem;"></i>
+                                        </div>
+                                        <span>Default</span>
+                                    </div>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+
+                                <!-- Midnight Pro (Dark) -->
+                                <div class="theme-option" data-theme="dark">
+                                    <div class="theme-name">
+                                        <div class="theme-icon dark">
+                                            <i class="fas fa-moon" style="color:#A594FA;font-size:0.7rem;"></i>
+                                        </div>
+                                        <span>Midnight Pro</span>
+                                    </div>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+
+                                <!-- Hacker (Cyberpunk) -->
+                                <div class="theme-option" data-theme="cyberpunk">
+                                    <div class="theme-name">
+                                        <div class="theme-icon cyberpunk">
+                                            <i class="fas fa-terminal" style="color:#00FF41;font-size:0.65rem;"></i>
+                                        </div>
+                                        <span>Hacker</span>
+                                    </div>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+
+                                <!-- Golden Hour (Sunset) -->
+                                <div class="theme-option" data-theme="sunset">
+                                    <div class="theme-name">
+                                        <div class="theme-icon sunset">
+                                            <i class="fas fa-fire" style="color:white;font-size:0.7rem;"></i>
+                                        </div>
+                                        <span>Golden Hour</span>
+                                    </div>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+
+                                <!-- Deep Abyss (Ocean) -->
+                                <div class="theme-option" data-theme="ocean">
+                                    <div class="theme-name">
+                                        <div class="theme-icon ocean">
+                                            <i class="fas fa-fish" style="color:white;font-size:0.65rem;"></i>
+                                        </div>
+                                        <span>Deep Abyss</span>
+                                    </div>
+                                    <i class="fas fa-check theme-check"></i>
+                                </div>
+                            </div>
+
+                            <!-- Tools Section -->
+                            <div class="menu-section">
+                                <div class="menu-section-title">Tools</div>
+                                <div class="menu-action-item" id="openPomodoro">
+                                    <i class="fas fa-fire"></i>
+                                    <span>Pomodoro Timer</span>
+                                </div>
+                                <div class="menu-action-item" id="openStopwatch">
+                                    <i class="fas fa-stopwatch"></i>
+                                    <span>Stopwatch</span>
+                                </div>
+                                <div class="menu-action-item" id="openExamCountdown">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>Exam Countdown</span>
+                                </div>
+                                <div class="menu-action-item" id="openStudyAnalytics">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Study Analytics</span>
+                                </div>
+                                <div class="menu-action-item" id="openCalendar">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Goal Calendar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Search Bar -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search tasks..." aria-label="Search tasks">
+                    <button class="search-clear" id="searchClear" aria-label="Clear search">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Task List Container -->
+            <div class="tasks-container">
+
+                <!-- Old data reset banner (hidden by default) -->
+                <div class="reset-banner" id="resetBanner">
+                    <span>⚠️ Some completed tasks are still showing. Tap to fix.</span>
+                    <button id="resetCompletedBtn">Fix Now</button>
+                </div>
+
+                <div class="tasks-list" id="tasksList">
+                    <!-- Tasks will be dynamically inserted here -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No tasks yet</h3>
+                    <p>Add a task to get started!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="addTaskBtn" aria-label="Add Task">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Task Detail Modal -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal-content task-detail-modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Task Details</h3>
+                <button class="modal-close" id="closeModal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Task Title -->
+                <div class="form-group">
+                    <div class="input-with-icon">
+                        <i class="fas fa-tasks"></i>
+                        <input 
+                            type="text" 
+                            id="taskTitleInput" 
+                            class="task-title-input" 
+                            placeholder="What do you want to do?"
+                            aria-label="Task title"
+                        >
+                    </div>
+                </div>
+
+                <!-- Completed Checkbox -->
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="taskCompletedInput">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Mark as completed</span>
+                    </label>
+                </div>
+
+                <!-- List Selector -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-folder"></i>
+                        List
+                    </label>
+                    <div class="select-wrapper">
+                        <select id="taskListInput" aria-label="Select list">
+                            <option value="Default">Default</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Wishlist">Wishlist</option>
+                        </select>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Due Date -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar"></i>
+                        Due Date
+                    </label>
+                    <div class="date-quick-options">
+                        <button class="quick-date-btn" data-date="today">Today</button>
+                        <button class="quick-date-btn" data-date="tomorrow">Tomorrow</button>
+                        <button class="quick-date-btn" data-date="custom">Custom</button>
+                    </div>
+                    <input type="date" id="taskDueDateInput" class="date-input" aria-label="Due date">
+                </div>
+
+                <!-- Time -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i>
+                        Time
+                    </label>
+                    <input type="time" id="taskTimeInput" class="time-input" aria-label="Time">
+                </div>
+
+                <!-- Repeat -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-redo"></i>
+                        Repeat
+                    </label>
+                    <div class="select-wrapper">
+                        <select id="taskRepeatInput" aria-label="Repeat frequency">
+                            <option value="none">None</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Notification -->
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="taskNotificationInput">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Enable notification</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="deleteTaskBtn">
+                    <i class="fas fa-trash"></i>
+                    Delete
+                </button>
+                <button class="btn btn-primary" id="saveTaskBtn">
+                    <i class="fas fa-save"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TOOL MODAL — Pomodoro Timer + Stopwatch (tabbed)
+         ============================================================ -->
+    <div class="tool-modal-overlay" id="toolModalOverlay">
+        <div class="tool-modal">
+
+            <!-- Tab Header (5 tabs: responsive design) -->
+            <div class="tool-tabs" style="display: grid; grid-template-columns: repeat(5, 1fr); position: relative;">
+                <button class="tool-tab-btn active" id="tabPomodoro" style="font-size: 0.7rem; padding: 8px 4px;">
+                    <i class="fas fa-fire"></i><span style="display:block;margin-top:2px;font-size:0.65rem;">Pomo</span>
+                </button>
+                <button class="tool-tab-btn" id="tabStopwatch" style="font-size: 0.7rem; padding: 8px 4px;">
+                    <i class="fas fa-stopwatch"></i><span style="display:block;margin-top:2px;font-size:0.65rem;">Timer</span>
+                </button>
+                <button class="tool-tab-btn" id="tabExam" style="font-size: 0.7rem; padding: 8px 4px;">
+                    <i class="fas fa-graduation-cap"></i><span style="display:block;margin-top:2px;font-size:0.65rem;">Exam</span>
+                </button>
+                <button class="tool-tab-btn" id="tabAnalytics" style="font-size: 0.7rem; padding: 8px 4px;">
+                    <i class="fas fa-chart-line"></i><span style="display:block;margin-top:2px;font-size:0.65rem;">Stats</span>
+                </button>
+                <button class="tool-tab-btn" id="tabCalendar" style="font-size: 0.7rem; padding: 8px 4px;">
+                    <i class="fas fa-calendar-alt"></i><span style="display:block;margin-top:2px;font-size:0.65rem;">Goals</span>
+                </button>
+                <button class="tool-modal-close" id="toolModalClose" aria-label="Close" style="position: absolute; top: 8px; right: 8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- ── POMODORO PANEL ── -->
+            <div class="tool-panel active" id="panelPomodoro" data-pomo-state="work">
+
+                <!-- Mode selector pills -->
+                <div class="pomo-modes">
+                    <button class="pomo-mode-btn active" data-mode="work">🍅 Work</button>
+                    <button class="pomo-mode-btn" data-mode="short">☕ Short Break</button>
+                    <button class="pomo-mode-btn" data-mode="long">🌿 Long Break</button>
+                </div>
+
+                <!-- Circular ring display -->
+                <div class="timer-ring-wrapper">
+                    <svg class="timer-ring-svg" viewBox="0 0 220 220">
+                        <circle class="timer-ring-bg" cx="110" cy="110" r="96"/>
+                        <circle class="timer-ring-progress" id="pomoRingProgress"
+                                cx="110" cy="110" r="96"
+                                stroke-dasharray="603.19"
+                                stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="timer-center">
+                        <div class="timer-display" id="pomoDisplay">25:00</div>
+                        <div class="timer-label" id="pomoStateLabel">Focus Time</div>
+                    </div>
+                </div>
+
+                <!-- Session dots (4 sessions before long break) -->
+                <div class="pomo-sessions" id="pomoSessions">
+                    <div class="session-dot current"></div>
+                    <div class="session-dot"></div>
+                    <div class="session-dot"></div>
+                    <div class="session-dot"></div>
+                </div>
+
+                <!-- Custom durations -->
+                <div class="pomo-custom-row">
+                    <label>Work</label>
+                    <input type="number" id="pomoWorkMin" value="25" min="1" max="99">
+                    <label>min &nbsp; Short</label>
+                    <input type="number" id="pomoShortMin" value="5" min="1" max="30">
+                    <label>min &nbsp; Long</label>
+                    <input type="number" id="pomoLongMin" value="15" min="1" max="60">
+                    <label>min</label>
+                </div>
+
+                <!-- Controls -->
+                <div class="timer-controls">
+                    <button class="ctrl-btn-secondary" id="pomoReset" title="Reset">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="ctrl-btn-primary" id="pomoToggle">
+                        <i class="fas fa-play" id="pomoToggleIcon"></i>
+                    </button>
+                    <button class="ctrl-btn-secondary" id="pomoSkip" title="Skip to next">
+                        <i class="fas fa-forward-step"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── STOPWATCH PANEL ── -->
+            <div class="tool-panel" id="panelStopwatch">
+
+                <!-- Ring display -->
+                <div class="timer-ring-wrapper">
+                    <svg class="timer-ring-svg" viewBox="0 0 220 220">
+                        <circle class="timer-ring-bg" cx="110" cy="110" r="96"/>
+                        <circle class="timer-ring-progress sw-running" id="swRingProgress"
+                                cx="110" cy="110" r="96"
+                                stroke-dasharray="603.19"
+                                stroke-dashoffset="603.19"/>
+                    </svg>
+                    <div class="timer-center">
+                        <div class="timer-display" id="swDisplay">00:00</div>
+                        <div class="timer-ms" id="swMs">.00</div>
+                        <div class="timer-label">Elapsed</div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="timer-controls">
+                    <button class="ctrl-btn-secondary" id="swReset" title="Reset">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="ctrl-btn-primary" id="swToggle">
+                        <i class="fas fa-play" id="swToggleIcon"></i>
+                    </button>
+                    <button class="ctrl-btn-secondary" id="swLap" title="Lap">
+                        <i class="fas fa-flag"></i>
+                    </button>
+                </div>
+
+                <!-- Lap table -->
+                <div class="lap-container" id="lapContainer">
+                    <div class="lap-header">
+                        <span>#</span><span>Lap</span><span>Total</span>
+                    </div>
+                    <div id="lapList">
+                        <div class="lap-empty">No laps yet — press 🏁 while running.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── EXAM COUNTDOWN PANEL ── -->
+            <div class="tool-panel" id="panelExam">
+                <!-- Add new exam form -->
+                <div class="exam-add-form">
+                    <input type="text" id="examNameInput" placeholder="Exam name (e.g., Physics Finals)" maxlength="50">
+                    <input type="date" id="examDateInput">
+                    <button class="exam-add-btn" id="addExamBtn">
+                        <i class="fas fa-plus"></i> Add Exam
+                    </button>
+                </div>
+
+                <!-- Exam list -->
+                <div class="exam-list" id="examList">
+                    <div class="exam-empty">
+                        <i class="fas fa-graduation-cap"></i>
+                        <p>No exams added yet. Add your first exam above!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── STUDY ANALYTICS PANEL ── -->
+            <div class="tool-panel" id="panelAnalytics">
+                <!-- Period selector tabs -->
+                <div class="analytics-tabs">
+                    <button class="analytics-tab-btn active" data-period="today">Today</button>
+                    <button class="analytics-tab-btn" data-period="week">This Week</button>
+                    <button class="analytics-tab-btn" data-period="month">This Month</button>
+                </div>
+
+                <!-- Big total hours card -->
+                <div class="analytics-card" id="analyticsCard">
+                    <div class="analytics-big-number" id="analyticsTotalHours">0h 0m</div>
+                    <div class="analytics-label" id="analyticsPeriodLabel">Today's Study Time</div>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="analytics-breakdown" id="analyticsBreakdown">
+                    <div class="analytics-row">
+                        <div class="analytics-row-label">
+                            <i class="fas fa-fire" style="color: #E53935;"></i> Work Sessions
+                        </div>
+                        <div class="analytics-row-value" id="analyticsWorkSessions">0</div>
+                    </div>
+                    <div class="analytics-row">
+                        <div class="analytics-row-label">
+                            <i class="fas fa-coffee" style="color: var(--success-color);"></i> Breaks Taken
+                        </div>
+                        <div class="analytics-row-value" id="analyticsBreaks">0</div>
+                    </div>
+                    <div class="analytics-row">
+                        <div class="analytics-row-label">
+                            <i class="fas fa-calendar-check"></i> Completed Cycles
+                        </div>
+                        <div class="analytics-row-value" id="analyticsCycles">0</div>
+                    </div>
+                    <div class="analytics-row">
+                        <div class="analytics-row-label">
+                            <i class="fas fa-clock"></i> Avg Session Length
+                        </div>
+                        <div class="analytics-row-value" id="analyticsAvgSession">0 min</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── CALENDAR PANEL ── -->
+            <div class="tool-panel" id="panelCalendar" style="overflow-y: auto; max-height: 70vh;">
+                <!-- Calendar navigation -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <button class="ctrl-btn-secondary" id="calPrevMonth" title="Previous Month">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <h3 id="calendarMonthTitle" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary);">February 2026</h3>
+                        <button class="ctrl-btn-secondary" id="calToday" title="Go to Today" style="font-size: 0.75rem; padding: 8px 12px;">
+                            Today
+                        </button>
+                    </div>
+                    <button class="ctrl-btn-secondary" id="calNextMonth" title="Next Month">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Streak counter -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 16px; padding: 10px; background: linear-gradient(135deg, #FF6B35, #F7931E); border-radius: 50px; color: white; font-weight: 600;">
+                    <i class="fas fa-fire" style="font-size: 1.2rem;"></i>
+                    <span id="streakCount">0</span>
+                    <span>Day Streak</span>
+                </div>
+
+                <!-- Weekday headers -->
+                <div class="calendar-weekdays">
+                    <div class="calendar-weekday">Sun</div>
+                    <div class="calendar-weekday">Mon</div>
+                    <div class="calendar-weekday">Tue</div>
+                    <div class="calendar-weekday">Wed</div>
+                    <div class="calendar-weekday">Thu</div>
+                    <div class="calendar-weekday">Fri</div>
+                    <div class="calendar-weekday">Sat</div>
+                </div>
+
+                <!-- Calendar dates grid -->
+                <div class="calendar-dates" id="calendarDates" style="margin-bottom: 16px;">
+                    <!-- Dates rendered by JS -->
+                </div>
+
+                <!-- Goal panel -->
+                <div style="background: var(--bg-tertiary); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px;">
+                    <div id="goalDateLabel" style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">
+                        Select a date to add a goal
+                    </div>
+                    <div id="goalContent">
+                        <div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.875rem;">
+                            Click a date above to set your daily goal
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Overlay for sidebar on mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- JavaScript -->
+    <script>
+        /**
+         * ========================================
+         * TIME.JS - Date and Time Management
+         * ========================================
+         */
+        'use strict';
+
+        class DateTimeManager {
+            constructor() {
+                this.dateElement = document.getElementById('currentDate');
+                this.timeElement = document.getElementById('currentTime');
+                this.updateInterval = null;
+            }
+
+            init() {
+                this.updateDateTime();
+                this.startAutoUpdate();
+            }
+
+            updateDateTime() {
+                const now = new Date();
+                
+                if (this.dateElement) {
+                    const dateOptions = {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    };
+                    this.dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+                }
+
+                if (this.timeElement) {
+                    const timeOptions = {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    };
+                    this.timeElement.textContent = now.toLocaleTimeString('en-US', timeOptions);
+                }
+            }
+
+            startAutoUpdate() {
+                this.updateDateTime();
+                this.updateInterval = setInterval(() => {
+                    this.updateDateTime();
+                }, 1000);
+            }
+
+            stopAutoUpdate() {
+                if (this.updateInterval) {
+                    clearInterval(this.updateInterval);
+                    this.updateInterval = null;
+                }
+            }
+        }
+
+        class DateUtilities {
+            static getToday() {
+                const now = new Date();
+                return this.formatDate(now);
+            }
+
+            static getTomorrow() {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                return this.formatDate(tomorrow);
+            }
+
+            static formatDate(date) {
+                if (!(date instanceof Date) || isNaN(date)) {
+                    return '';
+                }
+                
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                
+                return `${year}-${month}-${day}`;
+            }
+
+            static parseDate(dateString) {
+                if (!dateString) return null;
+                
+                const date = new Date(dateString + 'T00:00:00');
+                return isNaN(date) ? null : date;
+            }
+
+            static isToday(dateString) {
+                if (!dateString) return false;
+                return dateString === this.getToday();
+            }
+
+            static isTomorrow(dateString) {
+                if (!dateString) return false;
+                return dateString === this.getTomorrow();
+            }
+
+            static isPast(dateString) {
+                if (!dateString) return false;
+                
+                const date = this.parseDate(dateString);
+                const today = this.parseDate(this.getToday());
+                
+                return date < today;
+            }
+
+            static isFuture(dateString) {
+                if (!dateString) return false;
+                
+                const date = this.parseDate(dateString);
+                const today = this.parseDate(this.getToday());
+                
+                return date > today;
+            }
+
+            static getDisplayDate(dateString) {
+                if (!dateString) return '';
+
+                if (this.isToday(dateString)) {
+                    return 'Today';
+                }
+
+                if (this.isTomorrow(dateString)) {
+                    return 'Tomorrow';
+                }
+
+                const date = this.parseDate(dateString);
+                if (!date) return dateString;
+
+                const options = {
+                    month: 'short',
+                    day: 'numeric',
+                    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                };
+
+                return date.toLocaleDateString('en-US', options);
+            }
+
+            static daysDifference(date1, date2) {
+                const d1 = this.parseDate(date1);
+                const d2 = this.parseDate(date2);
+                
+                if (!d1 || !d2) return 0;
+                
+                const diffTime = d2.getTime() - d1.getTime();
+                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            }
+
+            static formatTime(timeString) {
+                if (!timeString) return '';
+
+                const [hours, minutes] = timeString.split(':').map(Number);
+                
+                if (isNaN(hours) || isNaN(minutes)) return timeString;
+
+                const period = hours >= 12 ? 'PM' : 'AM';
+                const hour12 = hours % 12 || 12;
+
+                return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`;
+            }
+
+            static getNextRepeatDate(currentDate, repeatType) {
+                const date = this.parseDate(currentDate);
+                if (!date) return currentDate;
+
+                const nextDate = new Date(date);
+
+                switch (repeatType) {
+                    case 'daily':
+                        nextDate.setDate(nextDate.getDate() + 1);
+                        break;
+                    case 'weekly':
+                        nextDate.setDate(nextDate.getDate() + 7);
+                        break;
+                    case 'monthly':
+                        nextDate.setMonth(nextDate.getMonth() + 1);
+                        break;
+                    default:
+                        return currentDate;
+                }
+
+                return this.formatDate(nextDate);
+            }
+
+            static compareDates(date1, date2) {
+                const d1 = this.parseDate(date1);
+                const d2 = this.parseDate(date2);
+
+                if (!d1 || !d2) return 0;
+
+                if (d1 < d2) return -1;
+                if (d1 > d2) return 1;
+                return 0;
+            }
+        }
+
+        // Initialize DateTime Manager
+        window.dateTimeManager = new DateTimeManager();
+        window.dateTimeManager.init();
+        window.DateUtils = DateUtilities;
+
+        /**
+         * ========================================
+         * THEME SWITCHER - Theme Management System
+         * ========================================
+         */
+
+        class ThemeSwitcher {
+            constructor() {
+                // DOM Elements
+                this.menuBtn = document.getElementById('menuBtn');
+                this.dropdownMenu = document.getElementById('dropdownMenu');
+                this.themeOptions = document.querySelectorAll('.theme-option');
+                
+                // Current theme
+                this.currentTheme = 'default';
+                
+                // Available themes list (for scalability)
+                this.availableThemes = ['default', 'dark', 'cyberpunk', 'sunset', 'ocean'];
+                
+                this.init();
+            }
+
+            /**
+             * Initialize theme switcher
+             */
+            init() {
+                // Load saved theme from localStorage
+                this.loadSavedTheme();
+                
+                // Bind event listeners
+                this.bindEvents();
+            }
+
+            /**
+             * Bind all event listeners
+             */
+            bindEvents() {
+                // Toggle dropdown menu
+                this.menuBtn?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleDropdown();
+                });
+
+                // Theme option click handlers
+                this.themeOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const theme = option.dataset.theme;
+                        this.switchTheme(theme);
+                        this.closeDropdown();
+                    });
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!this.dropdownMenu?.contains(e.target) && e.target !== this.menuBtn) {
+                        this.closeDropdown();
+                    }
+                });
+
+                // Close dropdown on Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.dropdownMenu?.classList.contains('active')) {
+                        this.closeDropdown();
+                    }
+                });
+            }
+
+            /**
+             * Toggle dropdown menu visibility
+             */
+            toggleDropdown() {
+                const isActive = this.dropdownMenu?.classList.contains('active');
+                
+                if (isActive) {
+                    this.closeDropdown();
+                } else {
+                    this.openDropdown();
+                }
+            }
+
+            /**
+             * Open dropdown menu
+             */
+            openDropdown() {
+                this.dropdownMenu?.classList.add('active');
+                this.menuBtn?.classList.add('active');
+            }
+
+            /**
+             * Close dropdown menu
+             */
+            closeDropdown() {
+                this.dropdownMenu?.classList.remove('active');
+                this.menuBtn?.classList.remove('active');
+            }
+
+            /**
+             * Switch to a new theme
+             * @param {string} themeName - Name of the theme to switch to
+             */
+            switchTheme(themeName) {
+                // Validate theme exists
+                if (!this.availableThemes.includes(themeName)) {
+                    console.warn(`Theme "${themeName}" not found`);
+                    return;
+                }
+
+                // Remove all theme classes from body
+                this.availableThemes.forEach(theme => {
+                    if (theme !== 'default') {
+                        document.body.classList.remove(`theme-${theme}`);
+                    }
+                });
+
+                // Apply new theme (skip 'default' as it's the base)
+                if (themeName !== 'default') {
+                    document.body.classList.add(`theme-${themeName}`);
+                }
+
+                // Update current theme
+                this.currentTheme = themeName;
+
+                // Update active indicator in UI
+                this.updateActiveTheme(themeName);
+
+                // Save theme to localStorage
+                this.saveTheme(themeName);
+
+                // Add smooth transition effect
+                this.addTransitionEffect();
+            }
+
+            /**
+             * Update active theme indicator in dropdown
+             * @param {string} themeName - Name of the active theme
+             */
+            updateActiveTheme(themeName) {
+                // Remove active class from all options
+                this.themeOptions.forEach(option => {
+                    option.classList.remove('active');
+                });
+
+                // Add active class to selected theme
+                const selectedOption = document.querySelector(`.theme-option[data-theme="${themeName}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('active');
+                }
+            }
+
+            /**
+             * Save theme preference to localStorage
+             * @param {string} themeName - Name of the theme to save
+             */
+            saveTheme(themeName) {
+                try {
+                    localStorage.setItem('selectedTheme', themeName);
+                } catch (e) {
+                    console.error('Failed to save theme to localStorage:', e);
+                }
+            }
+
+            /**
+             * Load saved theme from localStorage
+             */
+            loadSavedTheme() {
+                try {
+                    const savedTheme = localStorage.getItem('selectedTheme');
+                    
+                    if (savedTheme && this.availableThemes.includes(savedTheme)) {
+                        // Apply saved theme
+                        this.switchTheme(savedTheme);
+                    } else {
+                        // Apply default theme
+                        this.updateActiveTheme('default');
+                    }
+                } catch (e) {
+                    console.error('Failed to load theme from localStorage:', e);
+                    this.updateActiveTheme('default');
+                }
+            }
+
+            /**
+             * Add smooth transition effect when switching themes
+             */
+            addTransitionEffect() {
+                // Add transition class temporarily
+                document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                
+                // Remove after transition completes
+                setTimeout(() => {
+                    document.body.style.transition = '';
+                }, 300);
+            }
+
+            /**
+             * Get current theme name
+             * @returns {string} Current theme name
+             */
+            getCurrentTheme() {
+                return this.currentTheme;
+            }
+
+            /**
+             * Add a new theme dynamically (for future scalability)
+             * @param {string} themeName - Name of the new theme
+             */
+            addTheme(themeName) {
+                if (!this.availableThemes.includes(themeName)) {
+                    this.availableThemes.push(themeName);
+                }
+            }
+        }
+
+        // Initialize Theme Switcher
+        window.themeSwitcher = new ThemeSwitcher();
+
+        /**
+         * ========================================
+         * TASK MANAGER - Main Application Logic
+         * ========================================
+         */
+
+        class TaskManager {
+            constructor() {
+                this.tasks = [];
+                this.currentFilter = 'all';
+                this.currentList = null;
+                this.editingTaskId = null;
+                this.searchQuery = '';
+                
+                this.elements = {
+                    sidebar: document.getElementById('sidebar'),
+                    sidebarOverlay: document.getElementById('sidebarOverlay'),
+                    sidebarToggle: document.getElementById('sidebarToggle'),
+                    mobileMenuToggle: document.getElementById('mobileMenuToggle'),
+                    navItems: document.querySelectorAll('.nav-item'),
+                    themeToggle: document.getElementById('themeToggle'),
+                    searchBtn: document.getElementById('searchBtn'),
+                    searchContainer: document.getElementById('searchContainer'),
+                    searchInput: document.getElementById('searchInput'),
+                    searchClear: document.getElementById('searchClear'),
+                    tasksList: document.getElementById('tasksList'),
+                    emptyState: document.getElementById('emptyState'),
+                    pageTitle: document.getElementById('pageTitle'),
+                    addTaskBtn: document.getElementById('addTaskBtn'),
+                    taskModal: document.getElementById('taskModal'),
+                    closeModal: document.getElementById('closeModal'),
+                    modalTitle: document.getElementById('modalTitle'),
+                    taskTitleInput: document.getElementById('taskTitleInput'),
+                    taskCompletedInput: document.getElementById('taskCompletedInput'),
+                    taskListInput: document.getElementById('taskListInput'),
+                    taskDueDateInput: document.getElementById('taskDueDateInput'),
+                    taskTimeInput: document.getElementById('taskTimeInput'),
+                    taskRepeatInput: document.getElementById('taskRepeatInput'),
+                    taskNotificationInput: document.getElementById('taskNotificationInput'),
+                    quickDateBtns: document.querySelectorAll('.quick-date-btn'),
+                    saveTaskBtn: document.getElementById('saveTaskBtn'),
+                    deleteTaskBtn: document.getElementById('deleteTaskBtn')
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.loadTasks();
+                this.bindEvents();
+                this.renderTasks();
+                this.updateAllCounts();
+                // Safety: immediately re-save tasks with normalized completed field
+                // This fixes any browser that has old data from before this version
+                this.saveTasks();
+            }
+
+            bindEvents() {
+                this.elements.mobileMenuToggle?.addEventListener('click', () => this.toggleSidebar());
+                this.elements.sidebarOverlay?.addEventListener('click', () => this.toggleSidebar());
+                
+                this.elements.navItems.forEach(item => {
+                    item.addEventListener('click', (e) => this.handleNavigation(e));
+                });
+                
+                this.elements.searchBtn?.addEventListener('click', () => this.toggleSearch());
+                this.elements.searchInput?.addEventListener('input', (e) => this.handleSearch(e));
+                this.elements.searchClear?.addEventListener('click', () => this.clearSearch());
+                this.elements.addTaskBtn?.addEventListener('click', () => this.openTaskModal());
+                this.elements.closeModal?.addEventListener('click', () => this.closeTaskModal());
+                this.elements.taskModal?.addEventListener('click', (e) => {
+                    if (e.target === this.elements.taskModal) {
+                        this.closeTaskModal();
+                    }
+                });
+                
+                this.elements.quickDateBtns.forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleQuickDate(e));
+                });
+                
+                this.elements.saveTaskBtn?.addEventListener('click', () => this.saveTask());
+                this.elements.deleteTaskBtn?.addEventListener('click', () => this.deleteTask());
+                
+                document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+
+                // Reset banner: wipe completed tasks from All Tasks view
+                document.getElementById('resetCompletedBtn')?.addEventListener('click', () => {
+                    // Move all completed tasks to be ONLY visible in finished
+                    // They are already marked completed:true — just re-render
+                    document.getElementById('resetBanner').style.display = 'none';
+                    this.renderTasks();
+                    this.updateAllCounts();
+                });
+            }
+
+            toggleSidebar() {
+                this.elements.sidebar?.classList.toggle('active');
+                this.elements.sidebarOverlay?.classList.toggle('active');
+            }
+
+            handleNavigation(e) {
+                const item = e.currentTarget;
+                const filter = item.dataset.filter;
+                const list = item.dataset.list;
+                
+                this.elements.navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                if (filter) {
+                    this.currentFilter = filter;
+                    this.currentList = null;
+                    this.updatePageTitle(this.getFilterTitle(filter));
+                } else if (list) {
+                    this.currentFilter = 'list';
+                    this.currentList = list;
+                    this.updatePageTitle(list);
+                }
+                
+                if (window.innerWidth <= 768) {
+                    this.toggleSidebar();
+                }
+                
+                this.renderTasks();
+            }
+
+            getFilterTitle(filter) {
+                const titles = {
+                    'all': 'All Tasks',
+                    'today': 'Today',
+                    'overdue': 'Overdue',
+                    'finished': 'Finished'
+                };
+                return titles[filter] || 'Tasks';
+            }
+
+            updatePageTitle(title) {
+                if (this.elements.pageTitle) {
+                    this.elements.pageTitle.textContent = title;
+                }
+            }
+
+            toggleSearch() {
+                this.elements.searchContainer?.classList.toggle('active');
+                if (this.elements.searchContainer?.classList.contains('active')) {
+                    this.elements.searchInput?.focus();
+                } else {
+                    this.clearSearch();
+                }
+            }
+
+            handleSearch(e) {
+                this.searchQuery = e.target.value.toLowerCase();
+                this.renderTasks();
+            }
+
+            clearSearch() {
+                this.searchQuery = '';
+                if (this.elements.searchInput) {
+                    this.elements.searchInput.value = '';
+                }
+                this.renderTasks();
+            }
+
+            handleKeyboard(e) {
+                if (e.key === 'Escape') {
+                    if (this.elements.taskModal?.classList.contains('active')) {
+                        this.closeTaskModal();
+                    }
+                    if (this.elements.searchContainer?.classList.contains('active')) {
+                        this.toggleSearch();
+                    }
+                }
+                
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    this.toggleSearch();
+                }
+                
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    this.openTaskModal();
+                }
+            }
+
+            loadTasks() {
+                const stored = localStorage.getItem('tasks');
+                if (stored) {
+                    try {
+                        this.tasks = JSON.parse(stored);
+                        // Ensure every task has required fields
+                        this.tasks = this.tasks.map(t => ({
+                            id:           t.id || this.generateId(),
+                            title:        t.title || '',
+                            completed:    t.completed === true,
+                            list:         t.list || 'Default',
+                            dueDate:      t.dueDate || null,
+                            time:         t.time || null,
+                            repeat:       t.repeat || 'none',
+                            notification: t.notification || false
+                        }));
+                    } catch (e) {
+                        console.error('Error loading tasks:', e);
+                        this.tasks = [];
+                    }
+                } else {
+                    this.tasks = [];
+                }
+            }
+
+            saveTasks() {
+                try {
+                    localStorage.setItem('tasks', JSON.stringify(this.tasks));
+                } catch (e) {
+                    console.error('Error saving tasks:', e);
+                }
+            }
+
+            generateId() {
+                return Date.now() + Math.random().toString(36).substr(2, 9);
+            }
+
+            openTaskModal(taskId = null) {
+                this.editingTaskId = taskId;
+                this.resetTaskForm();
+                
+                if (taskId) {
+                    const task = this.tasks.find(t => t.id === taskId);
+                    if (task) {
+                        this.populateTaskForm(task);
+                        this.elements.modalTitle.textContent = 'Edit Task';
+                        this.elements.deleteTaskBtn?.classList.remove('hidden');
+                    }
+                } else {
+                    this.elements.modalTitle.textContent = 'New Task';
+                    this.elements.deleteTaskBtn?.classList.add('hidden');
+                    
+                    if (this.currentList) {
+                        this.elements.taskListInput.value = this.currentList;
+                    }
+                }
+                
+                this.elements.taskModal?.classList.add('active');
+                this.elements.taskTitleInput?.focus();
+            }
+
+            closeTaskModal() {
+                this.elements.taskModal?.classList.remove('active');
+                this.editingTaskId = null;
+                this.resetTaskForm();
+            }
+
+            resetTaskForm() {
+                if (this.elements.taskTitleInput) this.elements.taskTitleInput.value = '';
+                if (this.elements.taskCompletedInput) this.elements.taskCompletedInput.checked = false;
+                if (this.elements.taskListInput) this.elements.taskListInput.value = 'Default';
+                if (this.elements.taskDueDateInput) this.elements.taskDueDateInput.value = '';
+                if (this.elements.taskTimeInput) this.elements.taskTimeInput.value = '';
+                if (this.elements.taskRepeatInput) this.elements.taskRepeatInput.value = 'none';
+                if (this.elements.taskNotificationInput) this.elements.taskNotificationInput.checked = false;
+                
+                this.elements.quickDateBtns.forEach(btn => btn.classList.remove('active'));
+            }
+
+            populateTaskForm(task) {
+                if (this.elements.taskTitleInput) this.elements.taskTitleInput.value = task.title || '';
+                if (this.elements.taskCompletedInput) this.elements.taskCompletedInput.checked = task.completed || false;
+                if (this.elements.taskListInput) this.elements.taskListInput.value = task.list || 'Default';
+                if (this.elements.taskDueDateInput) this.elements.taskDueDateInput.value = task.dueDate || '';
+                if (this.elements.taskTimeInput) this.elements.taskTimeInput.value = task.time || '';
+                if (this.elements.taskRepeatInput) this.elements.taskRepeatInput.value = task.repeat || 'none';
+                if (this.elements.taskNotificationInput) this.elements.taskNotificationInput.checked = task.notification || false;
+                
+                this.updateQuickDateButtons(task.dueDate);
+            }
+
+            handleQuickDate(e) {
+                const btn = e.target.closest('.quick-date-btn');
+                const dateType = btn.dataset.date;
+                
+                this.elements.quickDateBtns.forEach(b => b.classList.remove('active'));
+                
+                if (dateType === 'today') {
+                    this.elements.taskDueDateInput.value = window.DateUtils.getToday();
+                    btn.classList.add('active');
+                } else if (dateType === 'tomorrow') {
+                    this.elements.taskDueDateInput.value = window.DateUtils.getTomorrow();
+                    btn.classList.add('active');
+                } else if (dateType === 'custom') {
+                    btn.classList.add('active');
+                    this.elements.taskDueDateInput?.focus();
+                }
+            }
+
+            updateQuickDateButtons(date) {
+                this.elements.quickDateBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    
+                    if (date) {
+                        if (btn.dataset.date === 'today' && window.DateUtils.isToday(date)) {
+                            btn.classList.add('active');
+                        } else if (btn.dataset.date === 'tomorrow' && window.DateUtils.isTomorrow(date)) {
+                            btn.classList.add('active');
+                        } else if (btn.dataset.date === 'custom' && 
+                                   !window.DateUtils.isToday(date) && 
+                                   !window.DateUtils.isTomorrow(date)) {
+                            btn.classList.add('active');
+                        }
+                    }
+                });
+            }
+
+            saveTask() {
+                const title = this.elements.taskTitleInput?.value.trim();
+                
+                if (!title) {
+                    alert('Please enter a task title');
+                    return;
+                }
+                
+                const taskData = {
+                    title: title,
+                    completed: this.elements.taskCompletedInput?.checked || false,
+                    list: this.elements.taskListInput?.value || 'Default',
+                    dueDate: this.elements.taskDueDateInput?.value || null,
+                    time: this.elements.taskTimeInput?.value || null,
+                    repeat: this.elements.taskRepeatInput?.value || 'none',
+                    notification: this.elements.taskNotificationInput?.checked || false
+                };
+                
+                if (this.editingTaskId) {
+                    const taskIndex = this.tasks.findIndex(t => t.id === this.editingTaskId);
+                    if (taskIndex !== -1) {
+                        this.tasks[taskIndex] = {
+                            ...this.tasks[taskIndex],
+                            ...taskData
+                        };
+                    }
+                } else {
+                    const newTask = {
+                        id: this.generateId(),
+                        ...taskData
+                    };
+                    this.tasks.push(newTask);
+                }
+                
+                this.saveTasks();
+                this.renderTasks();
+                this.updateAllCounts();
+                this.closeTaskModal();
+            }
+
+            deleteTask() {
+                if (!this.editingTaskId) return;
+                
+                if (confirm('Are you sure you want to delete this task?')) {
+                    this.tasks = this.tasks.filter(t => t.id !== this.editingTaskId);
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.updateAllCounts();
+                    this.closeTaskModal();
+                }
+            }
+
+            toggleTaskComplete(taskId) {
+                // Find the task
+                const task = this.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                // Toggle
+                task.completed = !task.completed;
+
+                // Repeat task: reschedule, don't complete
+                if (task.completed && task.repeat !== 'none' && task.dueDate) {
+                    task.dueDate   = window.DateUtils.getNextRepeatDate(task.dueDate, task.repeat);
+                    task.completed = false;
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.updateAllCounts();
+                    return;
+                }
+
+                // Save immediately
+                this.saveTasks();
+                this.updateAllCounts();
+
+                // Always re-render — getFilteredTasks will exclude completed from non-finished views
+                this.renderTasks();
+            }
+
+            getFilteredTasks() {
+                const all = this.tasks || [];
+
+                let result;
+
+                switch (this.currentFilter) {
+                    case 'finished':
+                        // ONLY completed tasks
+                        result = all.filter(t => t.completed === true);
+                        break;
+
+                    case 'today':
+                        // Incomplete + due today
+                        result = all.filter(t =>
+                            !t.completed &&
+                            t.dueDate &&
+                            window.DateUtils.isToday(t.dueDate)
+                        );
+                        break;
+
+                    case 'overdue':
+                        // Incomplete + past due
+                        result = all.filter(t =>
+                            !t.completed &&
+                            t.dueDate &&
+                            window.DateUtils.isPast(t.dueDate)
+                        );
+                        break;
+
+                    case 'list':
+                        // Specific list — NEVER show completed
+                        result = all.filter(t =>
+                            !t.completed &&
+                            t.list === this.currentList
+                        );
+                        break;
+
+                    default: // 'all'
+                        // ALL TASKS — NEVER show completed. Completed = Finished only.
+                        result = all.filter(t => !t.completed);
+                        break;
+                }
+
+                // Apply search
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(t => t.title && t.title.toLowerCase().includes(q));
+                }
+
+                // Sort by due date
+                result.sort((a, b) => {
+                    if (a.dueDate && b.dueDate) return window.DateUtils.compareDates(a.dueDate, b.dueDate);
+                    if (a.dueDate) return -1;
+                    if (b.dueDate) return 1;
+                    return 0;
+                });
+
+                return result;
+            }
+
+            renderTasks() {
+                const filtered = this.getFilteredTasks();
+                const listEl   = this.elements.tasksList;
+                const emptyEl  = this.elements.emptyState;
+                if (!listEl) return;
+
+                // Set data-view on body so CSS nuclear guard knows current view
+                document.body.setAttribute('data-view', this.currentFilter);
+
+                if (filtered.length === 0) {
+                    listEl.innerHTML = '';
+                    if (emptyEl) emptyEl.style.display = 'flex';
+                } else {
+                    if (emptyEl) emptyEl.style.display = 'none';
+                    listEl.innerHTML = filtered.map(t => this.createTaskHTML(t)).join('');
+                    this.bindTaskEvents();
+                }
+            }
+
+            createTaskHTML(task) {
+                const isOverdue = task.dueDate && window.DateUtils.isPast(task.dueDate) && !task.completed;
+                const classes = `task-item ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`;
+                
+                let metaHTML = '';
+                
+                if (task.dueDate) {
+                    const displayDate = window.DateUtils.getDisplayDate(task.dueDate);
+                    const isToday = window.DateUtils.isToday(task.dueDate);
+                    const metaClass = isOverdue ? 'overdue' : (isToday ? 'due-today' : '');
+                    metaHTML += `<span class="task-meta-item ${metaClass}">
+                        <i class="fas fa-calendar"></i> ${displayDate}
+                    </span>`;
+                }
+                
+                if (task.time) {
+                    const displayTime = window.DateUtils.formatTime(task.time);
+                    metaHTML += `<span class="task-meta-item">
+                        <i class="fas fa-clock"></i> ${displayTime}
+                    </span>`;
+                }
+                
+                if (task.repeat !== 'none') {
+                    metaHTML += `<span class="task-meta-item">
+                        <i class="fas fa-redo"></i> ${task.repeat}
+                    </span>`;
+                }
+                
+                if (task.list) {
+                    metaHTML += `<span class="task-meta-item">
+                        <i class="fas fa-folder"></i> ${task.list}
+                    </span>`;
+                }
+                
+                return `
+                    <div class="${classes}" data-task-id="${task.id}">
+                        <div class="task-checkbox">
+                            <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                                   data-action="toggle" aria-label="Toggle task completion">
+                            <div class="checkbox-circle">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="task-content" data-action="edit">
+                            <div class="task-title">${this.escapeHTML(task.title)}</div>
+                            ${metaHTML ? `<div class="task-meta">${metaHTML}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            bindTaskEvents() {
+                const taskItems = document.querySelectorAll('.task-item');
+                
+                taskItems.forEach(item => {
+                    const taskId = item.dataset.taskId;
+                    
+                    // Use 'change' on the input — most reliable cross-browser
+                    const checkbox = item.querySelector('input[data-action="toggle"]');
+                    if (checkbox) {
+                        checkbox.addEventListener('change', (e) => {
+                            e.stopPropagation();
+                            this.toggleTaskComplete(taskId);
+                        });
+                    }
+
+                    // Also allow clicking the visual circle
+                    const circle = item.querySelector('.checkbox-circle');
+                    if (circle) {
+                        circle.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.toggleTaskComplete(taskId);
+                        });
+                    }
+                    
+                    // Edit on content click
+                    const content = item.querySelector('[data-action="edit"]');
+                    if (content) {
+                        content.addEventListener('click', () => {
+                            this.openTaskModal(taskId);
+                        });
+                    }
+                });
+            }
+
+            updateAllCounts() {
+                /* All Tasks = only incomplete (completed live in Finished) */
+                const allCount = this.tasks.filter(t => !t.completed).length;
+                this.updateCount('countAll', allCount);
+                
+                const todayCount = this.tasks.filter(t => 
+                    t.dueDate && window.DateUtils.isToday(t.dueDate) && !t.completed
+                ).length;
+                this.updateCount('countToday', todayCount);
+                
+                const overdueCount = this.tasks.filter(t => 
+                    t.dueDate && window.DateUtils.isPast(t.dueDate) && !t.completed
+                ).length;
+                this.updateCount('countOverdue', overdueCount);
+                
+                const finishedCount = this.tasks.filter(t => t.completed).length;
+                this.updateCount('countFinished', finishedCount);
+                
+                /* List counts = only incomplete tasks in each list */
+                const lists = ['Default', 'Personal', 'Work', 'Shopping', 'Wishlist'];
+                lists.forEach(list => {
+                    const count = this.tasks.filter(t => t.list === list && !t.completed).length;
+                    this.updateCount(`count${list}`, count);
+                });
+            }
+
+            updateCount(elementId, count) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = count;
+                }
+            }
+
+            escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize Task Manager
+        window.taskManager = new TaskManager();
+
+        /* ============================================================
+           TOOL MANAGER — Pomodoro Timer + Stopwatch
+           ============================================================ */
+
+        class ToolManager {
+            constructor() {
+                /* ── DOM refs ── */
+                this.overlay      = document.getElementById('toolModalOverlay');
+                this.closeBtn     = document.getElementById('toolModalClose');
+                this.tabPomodoro  = document.getElementById('tabPomodoro');
+                this.tabStopwatch = document.getElementById('tabStopwatch');
+                this.tabExam      = document.getElementById('tabExam');
+                this.tabAnalytics = document.getElementById('tabAnalytics');
+                this.tabCalendar  = document.getElementById('tabCalendar');
+                this.panelPomo    = document.getElementById('panelPomodoro');
+                this.panelSW      = document.getElementById('panelStopwatch');
+                this.panelExam    = document.getElementById('panelExam');
+                this.panelAnalytics = document.getElementById('panelAnalytics');
+                this.panelCalendar = document.getElementById('panelCalendar');
+
+                // Dropdown openers
+                this.openPomoBtn      = document.getElementById('openPomodoro');
+                this.openSWBtn        = document.getElementById('openStopwatch');
+                this.openExamBtn      = document.getElementById('openExamCountdown');
+                this.openAnalyticsBtn = document.getElementById('openStudyAnalytics');
+
+                /* ── POMODORO STATE ── */
+                this.pomo = {
+                    interval   : null,
+                    running    : false,
+                    mode       : 'work',          // 'work' | 'short' | 'long'
+                    session    : 0,               // completed work sessions (0–3)
+                    totalSessions: 4,
+                    durations  : { work: 25*60, short: 5*60, long: 15*60 },
+                    remaining  : 25*60,           // seconds left
+                    circumference: 2 * Math.PI * 96,   // ≈ 603.19
+                    history    : []  // {date: 'YYYY-MM-DD', workMinutes, breakMinutes, sessions}
+                };
+
+                /* ── STOPWATCH STATE ── */
+                this.sw = {
+                    interval  : null,
+                    running   : false,
+                    startTime : 0,    // performance.now() snapshot
+                    elapsed   : 0,    // accumulated ms
+                    laps      : [],   // array of {lap, total} ms values
+                };
+
+                /* ── EXAM COUNTDOWN STATE ── */
+                this.exams = [];     // {id, name, date, notifyDaily}
+                this.examInterval = null;
+
+                /* ── STUDY ANALYTICS STATE ── */
+                this.analyticsPeriod = 'today';  // 'today' | 'week' | 'month'
+
+                this._loadPomoHistory();
+                this._loadExams();
+                this._bindEvents();
+                this._pomoUpdateUI();   // render initial state
+                this._renderExams();
+                this._updateAnalytics();
+            }
+
+            /* ============================================================
+               EVENT BINDING
+               ============================================================ */
+            _bindEvents() {
+                // Open from dropdown
+                this.openPomoBtn?.addEventListener('click', () => { this._open('pomodoro'); window.themeSwitcher.closeDropdown(); });
+                this.openSWBtn?.addEventListener('click',   () => { this._open('stopwatch'); window.themeSwitcher.closeDropdown(); });
+                this.openExamBtn?.addEventListener('click', () => { this._open('exam'); window.themeSwitcher.closeDropdown(); });
+                this.openAnalyticsBtn?.addEventListener('click', () => { this._open('analytics'); window.themeSwitcher.closeDropdown(); });
+
+                // Close button & outside-click
+                this.closeBtn?.addEventListener('click', () => this._close());
+                this.overlay?.addEventListener('click', e => { if (e.target === this.overlay) this._close(); });
+
+                // Tab switching
+                this.tabPomodoro?.addEventListener('click',  () => this._switchTab('pomodoro'));
+                this.tabStopwatch?.addEventListener('click', () => this._switchTab('stopwatch'));
+                this.tabExam?.addEventListener('click',      () => this._switchTab('exam'));
+                this.tabAnalytics?.addEventListener('click', () => this._switchTab('analytics'));
+                this.tabCalendar?.addEventListener('click',  () => this._switchTab('calendar'));
+
+                // ESC key
+                document.addEventListener('keydown', e => {
+                    if (e.key === 'Escape' && this.overlay?.classList.contains('active')) this._close();
+                });
+
+                /* ── Pomodoro controls ── */
+                document.getElementById('pomoToggle')?.addEventListener('click', () => this._pomoToggle());
+                document.getElementById('pomoReset')?.addEventListener('click',  () => this._pomoReset());
+                document.getElementById('pomoSkip')?.addEventListener('click',   () => this._pomoSkip());
+
+                // Mode pills
+                document.querySelectorAll('.pomo-mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this._pomoSetMode(btn.dataset.mode);
+                    });
+                });
+
+                // Custom duration inputs (update on blur / Enter)
+                ['pomoWorkMin','pomoShortMin','pomoLongMin'].forEach(id => {
+                    const el = document.getElementById(id);
+                    el?.addEventListener('change', () => this._pomoReadCustomDurations());
+                    el?.addEventListener('keydown', e => { if(e.key==='Enter') el.blur(); });
+                });
+
+                /* ── Stopwatch controls ── */
+                document.getElementById('swToggle')?.addEventListener('click', () => this._swToggle());
+                document.getElementById('swReset')?.addEventListener('click',  () => this._swReset());
+                document.getElementById('swLap')?.addEventListener('click',    () => this._swLap());
+
+                /* ── Exam Countdown controls ── */
+                document.getElementById('addExamBtn')?.addEventListener('click', () => this._addExam());
+                document.getElementById('examNameInput')?.addEventListener('keydown', e => {
+                    if(e.key === 'Enter') this._addExam();
+                });
+
+                /* ── Analytics period tabs ── */
+                document.querySelectorAll('.analytics-tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.analyticsPeriod = btn.dataset.period;
+                        document.querySelectorAll('.analytics-tab-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this._updateAnalytics();
+                    });
+                });
+            }
+
+            /* ============================================================
+               MODAL OPEN / CLOSE / TAB
+               ============================================================ */
+            _open(tab = 'pomodoro') {
+                this.overlay?.classList.add('active');
+                this._switchTab(tab);
+            }
+
+            _close() {
+                this.overlay?.classList.remove('active');
+            }
+
+            _switchTab(tab) {
+                // Deactivate all tabs and panels
+                [this.tabPomodoro, this.tabStopwatch, this.tabExam, this.tabAnalytics, this.tabCalendar].forEach(t => t?.classList.remove('active'));
+                [this.panelPomo, this.panelSW, this.panelExam, this.panelAnalytics, this.panelCalendar].forEach(p => p?.classList.remove('active'));
+
+                // Activate selected tab and panel
+                if (tab === 'pomodoro') {
+                    this.tabPomodoro?.classList.add('active');
+                    this.panelPomo?.classList.add('active');
+                } else if (tab === 'stopwatch') {
+                    this.tabStopwatch?.classList.add('active');
+                    this.panelSW?.classList.add('active');
+                } else if (tab === 'exam') {
+                    this.tabExam?.classList.add('active');
+                    this.panelExam?.classList.add('active');
+                    this._startExamTicker();  // Start countdown update loop
+                } else if (tab === 'analytics') {
+                    this.tabAnalytics?.classList.add('active');
+                    this.panelAnalytics?.classList.add('active');
+                    this._updateAnalytics();  // Refresh data
+                } else if (tab === 'calendar') {
+                    this.tabCalendar?.classList.add('active');
+                    this.panelCalendar?.classList.add('active');
+                    window.calendarManager?.render();  // Render calendar
+                }
+            }
+
+            /* ============================================================
+               POMODORO — CORE LOGIC
+               ============================================================ */
+
+            /** Start / pause the Pomodoro countdown */
+            _pomoToggle() {
+                if (this.pomo.running) {
+                    this._pomoPause();
+                } else {
+                    this._pomoStart();
+                }
+            }
+
+            _pomoStart() {
+                this.pomo.running = true;
+                document.getElementById('pomoToggleIcon')?.classList.replace('fa-play','fa-pause');
+                this._updatePomoDot(true);
+
+                this.pomo.interval = setInterval(() => {
+                    this.pomo.remaining--;
+                    this._pomoUpdateUI();
+
+                    if (this.pomo.remaining <= 0) {
+                        this._pomoFinish();
+                    }
+                }, 1000);
+            }
+
+            _pomoPause() {
+                this.pomo.running = false;
+                clearInterval(this.pomo.interval);
+                this.pomo.interval = null;
+                document.getElementById('pomoToggleIcon')?.classList.replace('fa-pause','fa-play');
+                this._updatePomoDot(false);
+            }
+
+            /** Called when current phase finishes */
+            _pomoFinish() {
+                this._pomoPause();
+                this._pomoPlayBeep();
+
+                // Record completed session in history for analytics
+                const durationMinutes = Math.floor(this.pomo.durations[this.pomo.mode] / 60);
+                this._recordPomoSession(this.pomo.mode, durationMinutes);
+
+                if (this.pomo.mode === 'work') {
+                    this.pomo.session = (this.pomo.session + 1) % this.pomo.totalSessions;
+                    // every 4 sessions → long break
+                    const nextMode = (this.pomo.session === 0) ? 'long' : 'short';
+                    this._pomoSetMode(nextMode, true);
+                } else {
+                    this._pomoSetMode('work', true);
+                }
+            }
+
+            /** Skip to next phase manually */
+            _pomoSkip() {
+                this._pomoPause();
+                if (this.pomo.mode === 'work') {
+                    this.pomo.session = (this.pomo.session + 1) % this.pomo.totalSessions;
+                    const nextMode = (this.pomo.session === 0) ? 'long' : 'short';
+                    this._pomoSetMode(nextMode);
+                } else {
+                    this._pomoSetMode('work');
+                }
+            }
+
+            _pomoReset() {
+                this._pomoPause();
+                this.pomo.remaining = this.pomo.durations[this.pomo.mode];
+                this._pomoUpdateUI();
+            }
+
+            /** Switch pomodoro mode and reset timer */
+            _pomoSetMode(mode, autoStart = false) {
+                this.pomo.mode = mode;
+
+                // Sync pill UI
+                document.querySelectorAll('.pomo-mode-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+
+                this.pomo.remaining = this.pomo.durations[mode];
+                this._pomoUpdateUI();
+
+                if (autoStart) {
+                    setTimeout(() => this._pomoStart(), 600);
+                }
+            }
+
+            /** Read custom minute inputs and update durations */
+            _pomoReadCustomDurations() {
+                const w  = parseInt(document.getElementById('pomoWorkMin')?.value)  || 25;
+                const s  = parseInt(document.getElementById('pomoShortMin')?.value) || 5;
+                const l  = parseInt(document.getElementById('pomoLongMin')?.value)  || 15;
+                this.pomo.durations.work  = Math.max(1, w)  * 60;
+                this.pomo.durations.short = Math.max(1, s)  * 60;
+                this.pomo.durations.long  = Math.max(1, l)  * 60;
+                // If not running, reset to new duration for current mode
+                if (!this.pomo.running) {
+                    this.pomo.remaining = this.pomo.durations[this.pomo.mode];
+                    this._pomoUpdateUI();
+                }
+            }
+
+            /** Render timer display, ring, label, and session dots */
+            _pomoUpdateUI() {
+                const { remaining, durations, mode, session, circumference } = this.pomo;
+                const total    = durations[mode];
+                const progress = remaining / total;                // 1 → 0
+                const offset   = circumference * (1 - progress);  // fill from top
+
+                // Time string
+                const mm = String(Math.floor(remaining / 60)).padStart(2,'0');
+                const ss = String(remaining % 60).padStart(2,'0');
+                const display = document.getElementById('pomoDisplay');
+                if (display) display.textContent = `${mm}:${ss}`;
+
+                // Ring
+                const ring = document.getElementById('pomoRingProgress');
+                if (ring) ring.style.strokeDashoffset = offset;
+
+                // Label + panel data attr (controls ring color via CSS)
+                const stateMap = { work:'Focus Time', short:'Short Break', long:'Long Break' };
+                const colorMap = { work:'work',        short:'short',        long:'long' };
+                const label = document.getElementById('pomoStateLabel');
+                if (label) label.textContent = stateMap[mode] || '';
+                if (this.panelPomo) this.panelPomo.dataset.pomoState = colorMap[mode];
+
+                // Session dots
+                const dotsEl = document.getElementById('pomoSessions');
+                if (dotsEl) {
+                    dotsEl.querySelectorAll('.session-dot').forEach((dot, i) => {
+                        dot.classList.remove('done','current');
+                        if (i < session) dot.classList.add('done');
+                        else if (i === session && mode === 'work') dot.classList.add('current');
+                    });
+                }
+
+                // Page title flash when near end
+                if (remaining <= 10 && this.pomo.running) {
+                    document.title = `⏰ ${mm}:${ss} — TaskFlow`;
+                } else {
+                    document.title = 'TaskFlow - Advanced Task Manager';
+                }
+            }
+
+            /** Short beep using Web Audio API */
+            _pomoPlayBeep() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.8);
+                } catch(e) { /* audio not available */ }
+            }
+
+            /* ============================================================
+               STOPWATCH — CORE LOGIC
+               ============================================================ */
+
+            _swToggle() {
+                if (this.sw.running) {
+                    this._swPause();
+                } else {
+                    this._swStart();
+                }
+            }
+
+            _swStart() {
+                this.sw.running   = true;
+                this.sw.startTime = performance.now() - this.sw.elapsed;
+                document.getElementById('swToggleIcon')?.classList.replace('fa-play','fa-pause');
+
+                // Use requestAnimationFrame for smooth ms display
+                const tick = () => {
+                    if (!this.sw.running) return;
+                    this.sw.elapsed = performance.now() - this.sw.startTime;
+                    this._swUpdateUI();
+                    this.sw.rafId = requestAnimationFrame(tick);
+                };
+                this.sw.rafId = requestAnimationFrame(tick);
+            }
+
+            _swPause() {
+                this.sw.running = false;
+                cancelAnimationFrame(this.sw.rafId);
+                document.getElementById('swToggleIcon')?.classList.replace('fa-pause','fa-play');
+            }
+
+            _swReset() {
+                this._swPause();
+                this.sw.elapsed = 0;
+                this.sw.laps    = [];
+                this._swUpdateUI();
+                this._swRenderLaps();
+            }
+
+            /** Record a lap */
+            _swLap() {
+                if (!this.sw.running && this.sw.elapsed === 0) return;
+                const total   = this.sw.elapsed;
+                const prevTotal = this.sw.laps.length
+                    ? this.sw.laps[0].total   // laps are prepended
+                    : 0;
+                const lapTime = total - (this.sw.laps.length ? this.sw.laps[0].total : 0);
+                // prepend newest first
+                this.sw.laps.unshift({ lap: lapTime, total });
+                this._swRenderLaps();
+            }
+
+            /** Update ring + display */
+            _swUpdateUI() {
+                const ms   = this.sw.elapsed;
+                const totalSec = Math.floor(ms / 1000);
+                const mm   = String(Math.floor(totalSec / 60)).padStart(2,'0');
+                const ss   = String(totalSec % 60).padStart(2,'0');
+                const cent = String(Math.floor((ms % 1000) / 10)).padStart(2,'0');
+
+                const display = document.getElementById('swDisplay');
+                const msEl    = document.getElementById('swMs');
+                if (display) display.textContent = `${mm}:${ss}`;
+                if (msEl)    msEl.textContent = `.${cent}`;
+
+                // Rotate ring every 60 seconds (one full rotation = 60 s)
+                const ring = document.getElementById('swRingProgress');
+                if (ring) {
+                    const cycleProgress = (totalSec % 60) / 60;
+                    const circumference = 2 * Math.PI * 96;
+                    ring.style.strokeDashoffset = circumference * (1 - cycleProgress);
+                }
+            }
+
+            /** Render lap rows with best/worst highlighting */
+            _swRenderLaps() {
+                const list = document.getElementById('lapList');
+                if (!list) return;
+
+                if (this.sw.laps.length === 0) {
+                    list.innerHTML = '<div class="lap-empty">No laps yet — press 🏁 while running.</div>';
+                    return;
+                }
+
+                const lapTimes = this.sw.laps.map(l => l.lap);
+                const best  = Math.min(...lapTimes);
+                const worst = Math.max(...lapTimes);
+
+                list.innerHTML = this.sw.laps.map((entry, i) => {
+                    const num      = this.sw.laps.length - i;
+                    const lapStr   = this._swFmtMs(entry.lap);
+                    const totalStr = this._swFmtMs(entry.total);
+                    let cls = '';
+                    if (this.sw.laps.length > 1) {
+                        if (entry.lap === best)  cls = 'lap-best';
+                        if (entry.lap === worst) cls = 'lap-worst';
+                    }
+                    return `<div class="lap-row ${cls}">
+                        <span>${num}</span>
+                        <span>${lapStr}</span>
+                        <span>${totalStr}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            /** Format milliseconds to mm:ss.cc */
+            _swFmtMs(ms) {
+                const totalSec = Math.floor(ms / 1000);
+                const mm   = String(Math.floor(totalSec / 60)).padStart(2,'0');
+                const ss   = String(totalSec % 60).padStart(2,'0');
+                const cent = String(Math.floor((ms % 1000) / 10)).padStart(2,'0');
+                return `${mm}:${ss}.${cent}`;
+            }
+
+            /* ── Helper: toggle red dot in dropdown when running ── */
+            _updatePomoDot(running) {
+                const menuItem = document.getElementById('openPomodoro');
+                if (!menuItem) return;
+                let dot = menuItem.querySelector('.running-dot');
+                if (running && !dot) {
+                    dot = document.createElement('span');
+                    dot.className = 'running-dot';
+                    menuItem.appendChild(dot);
+                } else if (!running && dot) {
+                    dot.remove();
+                }
+            }
+
+            /* ============================================================
+               POMODORO HISTORY TRACKING (for analytics)
+               ============================================================ */
+            _loadPomoHistory() {
+                try {
+                    const stored = localStorage.getItem('pomoHistory');
+                    this.pomo.history = stored ? JSON.parse(stored) : [];
+                } catch(e) { this.pomo.history = []; }
+            }
+
+            _savePomoHistory() {
+                try {
+                    localStorage.setItem('pomoHistory', JSON.stringify(this.pomo.history));
+                } catch(e) { console.error('Failed to save pomo history:', e); }
+            }
+
+            _recordPomoSession(mode, minutes) {
+                const today = new Date().toISOString().slice(0,10);  // YYYY-MM-DD
+                let entry = this.pomo.history.find(h => h.date === today);
+                if (!entry) {
+                    entry = {date: today, workMinutes: 0, breakMinutes: 0, sessions: 0};
+                    this.pomo.history.push(entry);
+                }
+                if (mode === 'work') {
+                    entry.workMinutes += minutes;
+                    entry.sessions += 1;
+                } else {
+                    entry.breakMinutes += minutes;
+                }
+                this._savePomoHistory();
+            }
+
+            /* ============================================================
+               EXAM COUNTDOWN — CRUD + TICKER
+               ============================================================ */
+            _loadExams() {
+                try {
+                    const stored = localStorage.getItem('exams');
+                    this.exams = stored ? JSON.parse(stored) : [];
+                } catch(e) { this.exams = []; }
+            }
+
+            _saveExams() {
+                try {
+                    localStorage.setItem('exams', JSON.stringify(this.exams));
+                } catch(e) { console.error('Failed to save exams:', e); }
+            }
+
+            _addExam() {
+                const nameEl = document.getElementById('examNameInput');
+                const dateEl = document.getElementById('examDateInput');
+                const name = nameEl?.value.trim();
+                const date = dateEl?.value;
+
+                if (!name || !date) {
+                    alert('Please enter both exam name and date!');
+                    return;
+                }
+
+                const newExam = {
+                    id: Date.now() + Math.random().toString(36).slice(2,9),
+                    name,
+                    date,
+                    notifyDaily: true
+                };
+                this.exams.push(newExam);
+                this._saveExams();
+                this._renderExams();
+
+                // Clear form
+                if (nameEl) nameEl.value = '';
+                if (dateEl) dateEl.value = '';
+            }
+
+            _deleteExam(id) {
+                if (confirm('Delete this exam?')) {
+                    this.exams = this.exams.filter(e => e.id !== id);
+                    this._saveExams();
+                    this._renderExams();
+                }
+            }
+
+            _toggleExamNotify(id) {
+                const exam = this.exams.find(e => e.id === id);
+                if (exam) {
+                    exam.notifyDaily = !exam.notifyDaily;
+                    this._saveExams();
+                }
+            }
+
+            _renderExams() {
+                const list = document.getElementById('examList');
+                if (!list) return;
+
+                if (this.exams.length === 0) {
+                    list.innerHTML = `<div class="exam-empty">
+                        <i class="fas fa-graduation-cap"></i>
+                        <p>No exams added yet. Add your first exam above!</p>
+                    </div>`;
+                    return;
+                }
+
+                // Sort by date ascending
+                const sorted = [...this.exams].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+                list.innerHTML = sorted.map(exam => {
+                    const targetDate = new Date(exam.date + 'T00:00:00');
+                    const now = new Date();
+                    const diffMs = targetDate - now;
+                    const days = Math.floor(diffMs / (1000*60*60*24));
+                    const hours = Math.floor((diffMs % (1000*60*60*24)) / (1000*60*60));
+                    const mins = Math.floor((diffMs % (1000*60*60)) / (1000*60));
+
+                    const isPast = diffMs < 0;
+                    const borderColor = isPast ? 'var(--danger-color)' : 'var(--primary-color)';
+
+                    return `<div class="exam-card" style="border-left-color: ${borderColor};">
+                        <div class="exam-card-header">
+                            <div class="exam-name">${this._escapeHTML(exam.name)}</div>
+                            <button class="exam-delete" onclick="window.toolManager._deleteExam('${exam.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="exam-date-display">📅 ${new Date(exam.date).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'})}</div>
+                        ${isPast ? `<div style="color: var(--danger-color); font-weight: 600; margin: 8px 0;">Exam has passed</div>` : `
+                        <div class="exam-countdown">
+                            <div class="countdown-unit">
+                                <span class="countdown-value">${Math.abs(days)}</span>
+                                <span class="countdown-label">Days</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-value">${Math.abs(hours)}</span>
+                                <span class="countdown-label">Hours</span>
+                            </div>
+                            <div class="countdown-unit">
+                                <span class="countdown-value">${Math.abs(mins)}</span>
+                                <span class="countdown-label">Mins</span>
+                            </div>
+                        </div>`}
+                        <div class="exam-notification-toggle">
+                            <input type="checkbox" ${exam.notifyDaily ? 'checked' : ''} 
+                                   onchange="window.toolManager._toggleExamNotify('${exam.id}')">
+                            <span>Daily reminder notification</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            _startExamTicker() {
+                // Update countdown every 60 seconds when exam panel is visible
+                clearInterval(this.examInterval);
+                this._renderExams();  // Render immediately
+                this.examInterval = setInterval(() => {
+                    if (this.panelExam?.classList.contains('active')) {
+                        this._renderExams();
+                    }
+                }, 60000);  // Every 60s
+            }
+
+            /* ============================================================
+               STUDY ANALYTICS — AGGREGATE POMO HISTORY
+               ============================================================ */
+            _updateAnalytics() {
+                const period = this.analyticsPeriod;
+                const now = new Date();
+                const today = now.toISOString().slice(0,10);
+
+                let startDate;
+                if (period === 'today') {
+                    startDate = today;
+                } else if (period === 'week') {
+                    const d = new Date(now);
+                    d.setDate(d.getDate() - 7);
+                    startDate = d.toISOString().slice(0,10);
+                } else {  // month
+                    const d = new Date(now);
+                    d.setDate(d.getDate() - 30);
+                    startDate = d.toISOString().slice(0,10);
+                }
+
+                // Filter history
+                const relevant = this.pomo.history.filter(h => h.date >= startDate);
+
+                const totalWorkMin = relevant.reduce((sum, h) => sum + h.workMinutes, 0);
+                const totalBreakMin = relevant.reduce((sum, h) => sum + h.breakMinutes, 0);
+                const totalSessions = relevant.reduce((sum, h) => sum + h.sessions, 0);
+
+                const totalHours = Math.floor(totalWorkMin / 60);
+                const totalMins  = totalWorkMin % 60;
+
+                const avgSessionMin = totalSessions > 0 ? Math.round(totalWorkMin / totalSessions) : 0;
+
+                // Compute cycles (1 cycle = 4 work sessions)
+                const cycles = Math.floor(totalSessions / 4);
+
+                // Update UI
+                document.getElementById('analyticsTotalHours').textContent = `${totalHours}h ${totalMins}m`;
+                const labels = {today: "Today's Study Time", week: "This Week's Study Time", month: "This Month's Study Time"};
+                document.getElementById('analyticsPeriodLabel').textContent = labels[period] || '';
+                document.getElementById('analyticsWorkSessions').textContent = totalSessions;
+                document.getElementById('analyticsBreaks').textContent = relevant.reduce((sum,h) => sum + (h.breakMinutes > 0 ? 1 : 0), 0);
+                document.getElementById('analyticsCycles').textContent = cycles;
+                document.getElementById('analyticsAvgSession').textContent = avgSessionMin + ' min';
+            }
+
+            _escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        }
+
+        // Boot the tool manager after a short tick so DOM is ready
+        window.toolManager = new ToolManager();
+
+        /* ============================================================
+           CALENDAR MANAGER — Integrated with Tool Modal
+           ============================================================ */
+        class CalendarManager {
+            constructor() {
+                // Calendar is now inside tool modal, not standalone overlay
+                this.panel = document.getElementById('panelCalendar');
+                this.datesContainer = document.getElementById('calendarDates');
+                this.monthTitle = document.getElementById('calendarMonthTitle');
+                this.goalContent = document.getElementById('goalContent');
+                this.goalDateLabel = document.getElementById('goalDateLabel');
+                this.streakCount = document.getElementById('streakCount');
+                this.openBtn = document.getElementById('openCalendar');
+
+                this.currentDate = new Date();
+                this.selectedDate = null;
+                this.goals = {};       // {YYYY-MM-DD: {text, completed}}
+                this.lastUsedDate = null;  // Track last app use for streak
+                this.streak = 0;
+
+                this._loadData();
+                this._updateStreak();
+                this._bindEvents();
+            }
+
+            _bindEvents() {
+                // Open calendar = open tool modal + switch to calendar tab
+                this.openBtn?.addEventListener('click', () => {
+                    window.toolManager?._open('calendar');
+                    window.themeSwitcher?.closeDropdown();
+                });
+                
+                document.getElementById('calPrevMonth')?.addEventListener('click', () => this._changeMonth(-1));
+                document.getElementById('calNextMonth')?.addEventListener('click', () => this._changeMonth(1));
+                document.getElementById('calToday')?.addEventListener('click', () => this._goToday());
+            }
+
+            // Called by ToolManager when calendar tab is opened
+            render() {
+                this._render();
+            }
+
+            _changeMonth(delta) {
+                this.currentDate.setMonth(this.currentDate.getMonth() + delta);
+                this._render();
+            }
+
+            _goToday() {
+                this.currentDate = new Date();
+                this._render();
+            }
+
+            _render() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                this.monthTitle.textContent = new Date(year, month, 1).toLocaleDateString('en-US', {month:'long', year:'numeric'});
+
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+                let html = '';
+                // Previous month days
+                for (let i = firstDay - 1; i >= 0; i--) {
+                    html += `<div class="calendar-date other-month">${daysInPrevMonth - i}</div>`;
+                }
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    const isToday = this._isToday(dateStr);
+                    const isSelected = this.selectedDate === dateStr;
+                    const goal = this.goals[dateStr];
+                    let classes = 'calendar-date';
+                    if (isToday) classes += ' today';
+                    if (isSelected) classes += ' selected';
+                    if (goal) {
+                        if (goal.completed) classes += ' has-goal-complete';
+                        else classes += ' has-goal-incomplete';
+                    }
+                    html += `<div class="${classes}" data-date="${dateStr}">${day}</div>`;
+                }
+                // Next month days to fill grid
+                const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+                for (let i = 1; i <= totalCells - (firstDay + daysInMonth); i++) {
+                    html += `<div class="calendar-date other-month">${i}</div>`;
+                }
+
+                this.datesContainer.innerHTML = html;
+                // Bind click events
+                this.datesContainer.querySelectorAll('.calendar-date:not(.other-month)').forEach(el => {
+                    el.addEventListener('click', () => this._selectDate(el.dataset.date));
+                });
+
+                this._renderGoal();
+            }
+
+            _selectDate(dateStr) {
+                this.selectedDate = dateStr;
+                this._render();
+            }
+
+            _renderGoal() {
+                if (!this.selectedDate) {
+                    this.goalDateLabel.textContent = 'Select a date to add a goal';
+                    this.goalContent.innerHTML = '<div class="goal-empty">Click a date above to set your daily goal</div>';
+                    return;
+                }
+
+                const date = new Date(this.selectedDate);
+                this.goalDateLabel.textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+
+                const goal = this.goals[this.selectedDate];
+                if (goal) {
+                    this.goalContent.innerHTML = `
+                        <div class="goal-display">
+                            <div class="goal-text">${this._escapeHTML(goal.text)}</div>
+                            <div class="goal-actions">
+                                <label class="goal-complete-checkbox">
+                                    <input type="checkbox" ${goal.completed ? 'checked' : ''} id="goalCompleteCheck">
+                                    <span class="goal-complete-label">Mark as completed</span>
+                                </label>
+                                <button class="goal-delete-btn" id="goalDeleteBtn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('goalCompleteCheck')?.addEventListener('change', e => {
+                        this.goals[this.selectedDate].completed = e.target.checked;
+                        this._saveData();
+                        this._render();
+                    });
+                    document.getElementById('goalDeleteBtn')?.addEventListener('click', () => {
+                        delete this.goals[this.selectedDate];
+                        this._saveData();
+                        this._render();
+                    });
+                } else {
+                    this.goalContent.innerHTML = `
+                        <div class="goal-input-row">
+                            <input type="text" class="goal-input" id="goalInput" placeholder="What's your goal for this day?" maxlength="200">
+                            <button class="goal-save-btn" id="goalSaveBtn">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                    `;
+                    const input = document.getElementById('goalInput');
+                    const saveBtn = document.getElementById('goalSaveBtn');
+                    const save = () => {
+                        const text = input?.value.trim();
+                        if (text) {
+                            this.goals[this.selectedDate] = {text, completed: false};
+                            this._saveData();
+                            this._render();
+                        }
+                    };
+                    saveBtn?.addEventListener('click', save);
+                    input?.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+                    input?.focus();
+                }
+            }
+
+            _isToday(dateStr) {
+                return dateStr === new Date().toISOString().slice(0,10);
+            }
+
+            _loadData() {
+                try {
+                    const g = localStorage.getItem('calendarGoals');
+                    this.goals = g ? JSON.parse(g) : {};
+                    this.lastUsedDate = localStorage.getItem('lastUsedDate');
+                    this.streak = parseInt(localStorage.getItem('appStreak')) || 0;
+                } catch(e) { this.goals = {}; this.streak = 0; }
+            }
+
+            _saveData() {
+                try {
+                    localStorage.setItem('calendarGoals', JSON.stringify(this.goals));
+                } catch(e) { console.error('Failed to save goals:', e); }
+            }
+
+            _updateStreak() {
+                const today = new Date().toISOString().slice(0,10);
+                if (this.lastUsedDate !== today) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().slice(0,10);
+                    if (this.lastUsedDate === yesterdayStr) {
+                        this.streak += 1;
+                    } else if (this.lastUsedDate !== null) {
+                        this.streak = 1;
+                    } else {
+                        this.streak = 1;
+                    }
+                    this.lastUsedDate = today;
+                    localStorage.setItem('lastUsedDate', today);
+                    localStorage.setItem('appStreak', this.streak);
+                }
+                if (this.streakCount) this.streakCount.textContent = this.streak;
+            }
+
+            _escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize Calendar
+        window.calendarManager = new CalendarManager();
+    </script>
+</body>
+</html>
